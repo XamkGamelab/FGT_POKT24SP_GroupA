@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     //UI events
     public static Action<string> UpdateScoreEvent = delegate { };
     public static readonly UnityEventString UpdateHighscoreEvent = new UnityEventString();
+    public static readonly UnityEvent OnObstaclePass = new UnityEvent();
 
 
     private bool gameOn = false;
@@ -77,7 +78,7 @@ public class GameManager : MonoBehaviour
             UpdateScoreEvent(lastUpdatedScore.ToString());
 
             SpawnPlayer();
-            PlayGameMusic();
+           // PlayGameMusic();
             CanvasManager.ShowGameCanvas.Invoke();
         });
 
@@ -94,7 +95,7 @@ public class GameManager : MonoBehaviour
 
             CanvasManager.ShowCanvas.Invoke("MainMenu");
 
-            PlayMenuMusic();
+            //PlayMenuMusic();
         });
     }
     // Start is called before the first frame update
@@ -104,7 +105,8 @@ public class GameManager : MonoBehaviour
 
         print(highscore);
         UpdateHighscoreEvent.Invoke(highscore.ToString());
-        PlayMenuMusic();
+        StartGameEvent.Invoke();
+        //PlayMenuMusic();
     }
 
     // Update is called once per frame

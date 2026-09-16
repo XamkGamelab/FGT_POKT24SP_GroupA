@@ -7,13 +7,14 @@ using UnityEngine.Events;
 
 public class ObstacleManager : MonoBehaviour
 {
-    [SerializeField] private ObstacleObject[] backgrounds = null;
+    [SerializeField] private ObstacleObject[] obstacles = null;
     private int gameState = 1;
     private float gameSpeed = 1f;
 
     [SerializeField] Transform obstacleSpawnPoint = null;
     [SerializeField] Transform obstacleHolder = null;
 
+    ObstacleObject curObstacle = null;
     [SerializeField] int startBgCount = 0;
     public static readonly UnityEvent SpawnNewObstacleEvent = new UnityEvent();
     // Start is called before the first frame update
@@ -22,9 +23,7 @@ public class ObstacleManager : MonoBehaviour
     {
         SpawnNewObstacleEvent.AddListener(() =>
         {
-            int _state = gameState >= backgrounds.Length ? backgrounds.Length : gameState;
-
-           //SpawnObject(backgrounds[_state - 1], obstacleSpawnPoint);
+           SpawnObject(obstacles[0], obstacleSpawnPoint.position);
         });
 
         GameManager.OnUpdateGameSpeed += (_speed) =>
@@ -34,36 +33,30 @@ public class ObstacleManager : MonoBehaviour
             if (Mathf.FloorToInt(_speed) < gameState + 1)
                 return;
 
-            gameState = Mathf.FloorToInt(_speed);
-
-            int _state = gameState >= backgrounds.Length ? backgrounds.Length : gameState;
-
-            //SpawnObject(backgrounds[_state - 1], lastBG.SpawnPoint, true);
         };
 
         GameManager.StartGameEvent.AddListener(() =>
         {
             gameSpeed = 1f;
-            gameState = 1;
+            SpawnObject(obstacles[0], obstacleSpawnPoint.position);
         });
 
         GameManager.EndGameEvent.AddListener(() =>
         {
-            DestroyBgs();
-            gameState = 1;
+            DestroyObstacles();
             gameSpeed = 1f;
         });
     }
 
-    private void DestroyBgs()
+    private void DestroyObstacles()
     {
         for (int i = obstacleHolder.childCount; i > 0; i--)
             Destroy(obstacleHolder.GetChild(i-1).gameObject);
     }
 
-    private void SpawnObject(ObstacleObject _go, Vector3 _pos, bool _isOnStart = false)
+    private void SpawnObject(ObstacleObject _go, Vector3 _pos)
     {
-       // lastBG = Instantiate(_go, _pos, Quaternion.identity, obstacleHolder);
-        //lastBG.Init(_isOnStart, gameSpeed);
+        curObstacle = Instantiate(_go, _pos, Quaternion.identity, obstacleHolder);
+        curObstacle.Init(gameSpeed);
     }
 }

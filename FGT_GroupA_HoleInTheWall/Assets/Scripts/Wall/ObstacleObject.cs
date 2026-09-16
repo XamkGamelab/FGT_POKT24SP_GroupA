@@ -9,16 +9,17 @@ public class ObstacleObject : MonoBehaviour
     [SerializeField] private Vector3 moveDir = Vector3.back;
 
 
-    //  private float deletePos = 0f;
+    private float deletePos = 0f;
 
     private float gameSpeed = 1;
 
 
-    private SpriteRenderer spriteRenderer;
+    private Rigidbody rb;
     // Start is called before the first frame update
     void Awake()
     {
-        //deletePos = -Camera.main.transform.position * Camera.main.aspect - boundX;
+        rb = GetComponent<Rigidbody>();
+        deletePos = Camera.main.transform.position.z;
 
         GameManager.OnUpdateGameSpeed += SetGameSpeed;
     }
@@ -30,15 +31,15 @@ public class ObstacleObject : MonoBehaviour
         SetGameSpeed(_gameSpeed);
     }
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (!GameManager.Instance.GameOn)
             return;
 
-        transform.Translate(moveDir * gameSpeed * Time.deltaTime * 2f);
+        rb.MovePosition(transform.position + moveDir * gameSpeed * Time.deltaTime);
 
-        // if (transform.position.x < deletePos)
-        DestroyObject();
+        if (transform.position.z < deletePos)
+            DestroyObject();
     }
 
     private void DestroyObject()
@@ -47,11 +48,14 @@ public class ObstacleObject : MonoBehaviour
         GameManager.OnUpdateGameSpeed -= SetGameSpeed;
         Destroy(gameObject);
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionEnter(Collision collision)
     {
+        print("osu");
         if (collision.gameObject.TryGetComponent(out Player p))
         {
-            p.Die();
+            p.TakeDmg();
+            print(p.name);
+            DestroyObject();
             //SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
         }
             
