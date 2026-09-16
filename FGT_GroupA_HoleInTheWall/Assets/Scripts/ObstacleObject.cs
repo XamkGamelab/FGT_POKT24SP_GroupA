@@ -10,7 +10,7 @@ public class ObstacleObject : MonoBehaviour
         if (collision.gameObject.TryGetComponent(out Player p))
         {
             p.Die();
-            SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
+            //SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
         }
             
     }

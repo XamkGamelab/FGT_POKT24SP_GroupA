@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
 
             UpdateHighscoreEvent.Invoke(highscore.ToString());
 
-            CanvasManager.ShowCanvas.Invoke("MainMenuOverlay");
+            CanvasManager.ShowCanvas.Invoke("MainMenu");
 
             PlayMenuMusic();
         });

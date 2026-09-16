@@ -24,7 +24,7 @@ public class ObstacleManager : MonoBehaviour
         {
             int _state = gameState >= backgrounds.Length ? backgrounds.Length : gameState;
 
-            SpawnObject(backgrounds[_state - 1], obstacleSpawnPoint);
+           //SpawnObject(backgrounds[_state - 1], obstacleSpawnPoint);
         });
 
         GameManager.OnUpdateGameSpeed += (_speed) =>
@@ -38,7 +38,7 @@ public class ObstacleManager : MonoBehaviour
 
             int _state = gameState >= backgrounds.Length ? backgrounds.Length : gameState;
 
-            SpawnObject(backgrounds[_state - 1], lastBG.SpawnPoint, true);
+            //SpawnObject(backgrounds[_state - 1], lastBG.SpawnPoint, true);
         };
 
         GameManager.StartGameEvent.AddListener(() =>
@@ -63,7 +63,7 @@ public class ObstacleManager : MonoBehaviour
 
     private void SpawnObject(ObstacleObject _go, Vector3 _pos, bool _isOnStart = false)
     {
-        lastBG = Instantiate(_go, _pos, Quaternion.identity, obstacleHolder);
-        lastBG.Init(_isOnStart, gameSpeed);
+       // lastBG = Instantiate(_go, _pos, Quaternion.identity, obstacleHolder);
+        //lastBG.Init(_isOnStart, gameSpeed);
     }
 }
