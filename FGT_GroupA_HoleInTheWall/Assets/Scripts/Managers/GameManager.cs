@@ -17,8 +17,6 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private int scoreMultiplier = 10;
 
-    [SerializeField] private int gravitySwitchScore = 10;
-
 
     private float score = 0;
     private int lastUpdatedScore = 0;
@@ -43,8 +41,6 @@ public class GameManager : MonoBehaviour
 
 
     public static Action<float> OnUpdateGameSpeed = delegate { };
-
-    public static readonly UnityEvent GravitySwitchEvent = new UnityEvent();
 
     //UI events
     public static Action<string> UpdateScoreEvent = delegate { };
@@ -79,6 +75,7 @@ public class GameManager : MonoBehaviour
 
 
             UpdateScoreEvent(lastUpdatedScore.ToString());
+
             SpawnPlayer();
             PlayGameMusic();
             CanvasManager.ShowGameCanvas.Invoke();
@@ -98,14 +95,6 @@ public class GameManager : MonoBehaviour
             CanvasManager.ShowCanvas.Invoke("MainMenu");
 
             PlayMenuMusic();
-        });
-
-        GravitySwitchEvent.AddListener(() =>
-        {
-            if (!gameOn)
-                return;
-
-            score += gravitySwitchScore;
         });
     }
     // Start is called before the first frame update
