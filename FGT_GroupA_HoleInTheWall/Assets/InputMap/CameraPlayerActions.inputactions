@@ -1,0 +1,36 @@
+{
+    "version": 1,
+    "name": "CameraPlayerActions",
+    "maps": [
+        {
+            "name": "PlayerCamera",
+            "id": "8e803358-8daf-4da2-b3e2-f21a136e48e3",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "17748ec9-88bb-49c3-95b5-a77a10ad4097",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "510b8553-3e15-41e4-bd22-22e34c2d8bd8",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.junsk1games.canvasmanagement": {
+      "version": "https://github.com/Junski1/CanvasManagement.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9332d145c3ae1f12416f20380c21540459aee7ea"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.14",
       "depth": 0,
