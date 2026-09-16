@@ -15,12 +15,12 @@ public class ObstacleManager : MonoBehaviour
     [SerializeField] Transform obstacleHolder = null;
 
     [SerializeField] int startBgCount = 0;
-    public static readonly UnityEvent SpawnNewBgEvent = new UnityEvent();
+    public static readonly UnityEvent SpawnNewObstacleEvent = new UnityEvent();
     // Start is called before the first frame update
 
     private void Awake()
     {
-        SpawnNewBgEvent.AddListener(() =>
+        SpawnNewObstacleEvent.AddListener(() =>
         {
             int _state = gameState >= backgrounds.Length ? backgrounds.Length : gameState;
 
