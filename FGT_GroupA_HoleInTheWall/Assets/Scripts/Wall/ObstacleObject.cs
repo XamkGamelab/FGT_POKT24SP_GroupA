@@ -7,7 +7,7 @@ public class ObstacleObject : MonoBehaviour
     [SerializeField] private AudioClip hitAudio = null;
 
     [SerializeField] private Vector3 moveDir = Vector3.back;
-
+    [SerializeField] private float initVelocity = 1f;
 
     private float deletePos = 0f;
 
@@ -25,6 +25,7 @@ public class ObstacleObject : MonoBehaviour
         deletePos = Camera.main.transform.position.z;
     }
 
+    //This is called from ObstacleManager after a set amount of time
     private void SetGameSpeed(float _speed) => gameSpeed = _speed;
 
     public void Init(float _gameSpeed)
@@ -39,20 +40,36 @@ public class ObstacleObject : MonoBehaviour
     {
         if (!GameManager.Instance.GameOn)
             return;
+
         if (!canMove)
             return;
 
-        rb.MovePosition(transform.position + moveDir * gameSpeed * Time.deltaTime);
+        rb.AddForce(CalculateVel(moveDir * initVelocity * gameSpeed), ForceMode.VelocityChange);
 
         if (transform.position.z < deletePos)
             DestroyObject();
     }
 
+    private Vector3 CalculateVel(Vector3 _wantedVel)
+    {
+        Vector3 _curVel = rb.linearVelocity;
+        float _mag = _curVel.magnitude;
+        _curVel.y = 0;
+
+        _curVel = _curVel.normalized * _mag;
+
+        return _wantedVel - _curVel;
+    }
+
     private void DestroyObject()
     {
+        //tells the game that the wall has passed
         GameManager.OnObstaclePassEvent.Invoke();
+
+        //Tells ObstacleManager that it can spawn a new obstacle
         ObstacleManager.SpawnNewObstacleEvent.Invoke();
 
+        //UnSubcribe from OnUpdateGameSpeed
         GameManager.OnUpdateGameSpeed -= SetGameSpeed;
         Destroy(gameObject);
     }
@@ -61,7 +78,6 @@ public class ObstacleObject : MonoBehaviour
         if (collision.gameObject.TryGetComponent(out Player p))
         {
             p.TakeDmg();
-            DestroyObject();
             //SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
         }
     }

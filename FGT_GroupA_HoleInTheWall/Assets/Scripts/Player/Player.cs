@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
 
 
     private Color ogColor = Color.white;
-
+    private Rigidbody rb = null;
     private void Awake()
     {
         health.Value = maxHealth;
@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
         streak.Value = 0;
 
         col = GetComponent<Collider>();
+        rb = GetComponent<Rigidbody>();
         rend = GetComponent<MeshRenderer>();
 
         health.Subscribe(_value =>
@@ -50,10 +51,19 @@ public class Player : MonoBehaviour
     {
         health.Value--;
         streak.Value = 0;
-        StartCoroutine(HandleWallHit());
 
-        if(health.Value <= 0)
-            GameManager.EndGameEvent.Invoke();
+
+        if (health.Value <= 0)
+            Die();
+        else
+            StartCoroutine(HandleWallHit());
+    }
+
+    void Die()
+    {
+        rb.useGravity = true;
+        rb.AddExplosionForce(10000, transform.position + new Vector3(Random.Range(0,1f), 0, Random.Range(0, 1f)), Random.Range(.2f, 1f));
+        //GameManager.EndGameEvent.Invoke();
     }
 
     public void AddScore(int _scoreAmount)
@@ -65,7 +75,10 @@ public class Player : MonoBehaviour
     private IEnumerator HandleWallHit()
     {
         col.enabled = false;
+        //QuickFix
+        rb.useGravity = false;
         yield return FlashRed();
+        rb.useGravity = true;
         col.enabled = true;
     }
 
