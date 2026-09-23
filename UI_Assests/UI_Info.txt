@@ -1,4 +1,6 @@
-Image size: 800x800
+UI Assets sizes: 
+-800x800 (Health)
+-1920x1080 (Score)
 
 Colors: 
 -670000 (dark red)
@@ -6,3 +8,5 @@ Colors:
 -dadada (grey)
 -676767 (dark grey)
 -
+
+Font: Muro
