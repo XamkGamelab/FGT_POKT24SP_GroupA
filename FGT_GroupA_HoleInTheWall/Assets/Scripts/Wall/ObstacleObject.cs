@@ -13,6 +13,9 @@ public class ObstacleObject : MonoBehaviour
 
     private float gameSpeed = 1;
 
+    [SerializeField] private int scoreAmount = 10;
+
+    private bool canMove =false;
 
     private Rigidbody rb;
     // Start is called before the first frame update
@@ -20,8 +23,6 @@ public class ObstacleObject : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         deletePos = Camera.main.transform.position.z;
-
-        GameManager.OnUpdateGameSpeed += SetGameSpeed;
     }
 
     private void SetGameSpeed(float _speed) => gameSpeed = _speed;
@@ -29,11 +30,16 @@ public class ObstacleObject : MonoBehaviour
     public void Init(float _gameSpeed)
     {
         SetGameSpeed(_gameSpeed);
+        canMove = false;
     }
+
+    public void StartMove() => canMove = true;
     // Update is called once per frame
     void FixedUpdate()
     {
         if (!GameManager.Instance.GameOn)
+            return;
+        if (!canMove)
             return;
 
         rb.MovePosition(transform.position + moveDir * gameSpeed * Time.deltaTime);
@@ -44,20 +50,25 @@ public class ObstacleObject : MonoBehaviour
 
     private void DestroyObject()
     {
+        GameManager.OnObstaclePassEvent.Invoke();
         ObstacleManager.SpawnNewObstacleEvent.Invoke();
+
         GameManager.OnUpdateGameSpeed -= SetGameSpeed;
         Destroy(gameObject);
     }
     private void OnCollisionEnter(Collision collision)
     {
-        print("osu");
         if (collision.gameObject.TryGetComponent(out Player p))
         {
             p.TakeDmg();
-            print(p.name);
             DestroyObject();
             //SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
         }
-            
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.TryGetComponent(out Player p))
+            p.AddScore(scoreAmount);
     }
 }

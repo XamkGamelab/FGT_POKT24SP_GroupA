@@ -8,14 +8,12 @@ using UnityEngine.Events;
 public class ObstacleManager : MonoBehaviour
 {
     [SerializeField] private ObstacleObject[] obstacles = null;
-    private int gameState = 1;
     private float gameSpeed = 1f;
 
     [SerializeField] Transform obstacleSpawnPoint = null;
     [SerializeField] Transform obstacleHolder = null;
 
     ObstacleObject curObstacle = null;
-    [SerializeField] int startBgCount = 0;
     public static readonly UnityEvent SpawnNewObstacleEvent = new UnityEvent();
     // Start is called before the first frame update
 
@@ -24,27 +22,18 @@ public class ObstacleManager : MonoBehaviour
         SpawnNewObstacleEvent.AddListener(() =>
         {
            SpawnObject(obstacles[0], obstacleSpawnPoint.position);
+
+            StartCoroutine(PlayWallMoveAnimations());
         });
 
         GameManager.OnUpdateGameSpeed += (_speed) =>
         {
             gameSpeed = _speed;
-
-            if (Mathf.FloorToInt(_speed) < gameState + 1)
-                return;
-
         };
-
-        GameManager.StartGameEvent.AddListener(() =>
-        {
-            gameSpeed = 1f;
-            SpawnObject(obstacles[0], obstacleSpawnPoint.position);
-        });
 
         GameManager.EndGameEvent.AddListener(() =>
         {
             DestroyObstacles();
-            gameSpeed = 1f;
         });
     }
 
@@ -58,5 +47,15 @@ public class ObstacleManager : MonoBehaviour
     {
         curObstacle = Instantiate(_go, _pos, Quaternion.identity, obstacleHolder);
         curObstacle.Init(gameSpeed);
+    }
+
+    private IEnumerator PlayWallMoveAnimations()
+    {
+        //Start animations etc.
+        //Get the time of them and wait for that long
+        //for now a variable in GmaeManager
+        yield return new WaitForSeconds(GameManager.Instance.WallWaitTime);
+        curObstacle.StartMove();
+
     }
 }

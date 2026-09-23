@@ -1,34 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UniRx;
+
 
 public class GameManager : MonoBehaviour
 {
     [Header("Game")]
-    [SerializeField] private float gameSpeed = 1;
-    public float GameSpeed => gameSpeed;
+    private ReactiveProperty<float> gameSpeed = new();
 
-    private float lastGameSpeedUpdate = 0;
-    [SerializeField] private int scoreUpdateTreshold = 100;
     [SerializeField] private int maxGameSpeed = 5;
-
-    [SerializeField] private int scoreMultiplier = 10;
-
-
-    private float score = 0;
-    private int lastUpdatedScore = 0;
-
-
-    private int highscore = 0;
-    private bool highscoreUpdated = false;
+    [SerializeField] private float wallWaitTime = 1f;
+    public float WallWaitTime => wallWaitTime;
 
     [Header("Player")]
     [SerializeField] private GameObject playerPrefab  = null;
     [SerializeField] private Transform playerHolder  = null;
-    private GameObject curPlayer = null;
+    private HashSet<Player> players = new HashSet<Player>();
 
     [Header("Music")]
     [SerializeField] private AudioSource menuMusicStart = null;
@@ -44,8 +34,7 @@ public class GameManager : MonoBehaviour
 
     //UI events
     public static Action<string> UpdateScoreEvent = delegate { };
-    public static readonly UnityEventString UpdateHighscoreEvent = new UnityEventString();
-    public static readonly UnityEvent OnObstaclePass = new UnityEvent();
+    public static readonly UnityEvent OnObstaclePassEvent = new UnityEvent();
 
 
     private bool gameOn = false;
@@ -61,61 +50,38 @@ public class GameManager : MonoBehaviour
         else
             Destroy(this);
 
-        //load highscore from playerprefs
-        highscore = PlayerPrefs.GetInt("highscore");
+        gameSpeed.Subscribe(OnUpdateGameSpeed).AddTo(this);
 
         StartGameEvent.AddListener(() =>
         {
             gameOn = true;
 
-            score = 0;
-            lastUpdatedScore = 0;
-            gameSpeed = 1;
-            lastGameSpeedUpdate = 0;
+            gameSpeed.Value = 5;
             Time.timeScale = 1;
 
-
-            UpdateScoreEvent(lastUpdatedScore.ToString());
-
-            SpawnPlayer();
+            SpawnPlayers();
            // PlayGameMusic();
             CanvasManager.ShowGameCanvas.Invoke();
+            ObstacleManager.SpawnNewObstacleEvent.Invoke();
         });
 
         EndGameEvent.AddListener(() =>
         {
             gameOn = false;
-            DeletePlayer();
-            CheckForHighScore();
-
-            if (highscoreUpdated)
-                PlayerPrefs.SetInt("highscore", highscore);
-
-            UpdateHighscoreEvent.Invoke(highscore.ToString());
+            DeletePlayers();
 
             CanvasManager.ShowCanvas.Invoke("MainMenu");
 
             //PlayMenuMusic();
         });
+
+        OnObstaclePassEvent.AddListener(CheckForGameSpeed);
     }
     // Start is called before the first frame update
     private void Start()
     {
-        highscore = PlayerPrefs.GetInt("highscore", highscore);
-
-        print(highscore);
-        UpdateHighscoreEvent.Invoke(highscore.ToString());
         StartGameEvent.Invoke();
         //PlayMenuMusic();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(!gameOn)
-            return;
-
-        AddScore();
     }
 
     private void PlayMenuMusic()
@@ -134,61 +100,34 @@ public class GameManager : MonoBehaviour
         print(menuMusicLoop.isPlaying);
     }
 
-    private void SpawnPlayer()
+    private void SpawnPlayers()
     {
-        if (curPlayer != null)
+        if (playerPrefab == null)
             return;
 
-       curPlayer = Instantiate(playerPrefab, playerHolder);
+       players.Add(Instantiate(playerPrefab, playerHolder).GetComponent<Player>());
     }
 
-    private void DeletePlayer()
+    private void DeletePlayers()
     {
-        if (curPlayer == null)
+        if (players.Count <= 0)
             return;
 
-        Destroy(curPlayer);
-    }
-
-    private void AddScore() 
-    {
-        score += Time.deltaTime * gameSpeed * scoreMultiplier;
-
-        //Check if score is move on to the next int
-        if (Mathf.FloorToInt(score) < lastUpdatedScore+1)
-            return;
-
-        lastUpdatedScore = Mathf.FloorToInt(score);
-        CheckForGameSpeed();
-        
-        UpdateScoreEvent(lastUpdatedScore.ToString());
+        foreach (Player item in players)
+        {
+            Destroy(item.gameObject);
+        }
+        players.Clear();
     }
 
     private void CheckForGameSpeed()
     {
-        if(gameSpeed > (float)maxGameSpeed)
+        if(gameSpeed.Value > (float)maxGameSpeed)
         {
-            gameSpeed = (float)maxGameSpeed;
+            gameSpeed.Value = (float)maxGameSpeed;
             return;
         }
 
-        if (score < lastGameSpeedUpdate + (float)scoreUpdateTreshold * gameSpeed)
-            return;
-
-        lastGameSpeedUpdate += (float)scoreUpdateTreshold * gameSpeed;
-        gameSpeed += .1f;
-
-        OnUpdateGameSpeed(gameSpeed);
-    }
-
-    private void CheckForHighScore()
-    {
-        if (score < highscore)
-            return;
-
-        highscoreUpdated = true;
-        //Update highscore if score is higher
-
-        highscore = Mathf.FloorToInt(score);
+        gameSpeed.Value += .1f;
     }
 }

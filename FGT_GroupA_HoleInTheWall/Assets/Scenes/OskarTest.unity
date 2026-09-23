@@ -195,10 +195,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleManager
   obstacles:
-  - {fileID: 7383522356181290442, guid: a332e126184434040a12b7f853e439eb, type: 3}
+  - {fileID: 8678669332039050458, guid: 72aeea1fbee712149ba5abccf38df53e, type: 3}
   obstacleSpawnPoint: {fileID: 439885839}
   obstacleHolder: {fileID: 1977501759}
-  startBgCount: 0
 --- !u!1 &439885838
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,10 +400,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b942018720f4c342bbbad2a6d98fc62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  gameSpeed: 1
-  scoreUpdateTreshold: 100
   maxGameSpeed: 5
-  scoreMultiplier: 10
+  wallWaitTime: 1
   playerPrefab: {fileID: 605760450605406556, guid: a6e1173b7efff3846add8bcbd1bf2478, type: 3}
   playerHolder: {fileID: 98965025}
   menuMusicStart: {fileID: 0}
@@ -496,13 +493,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1856394975}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.06923417, y: 0, z: 0, w: 0.99760044}
+  m_LocalPosition: {x: 0, y: 4.83, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 7.94, y: 0, z: 0}
 --- !u!114 &1856394979
 MonoBehaviour:
   m_ObjectHideFlags: 0
