@@ -32,6 +32,7 @@ public class BodyController : MonoBehaviour
     public bool enableArms = true;
     public bool enableLegs = true;
     public bool enableSpine = true;
+    public bool enableHead = true;
 
     [Header("Debug")]
     public bool drawGizmos = false;
@@ -69,6 +70,7 @@ public class BodyController : MonoBehaviour
             HumanBodyBones.Hips,
             HumanBodyBones.Spine,
             HumanBodyBones.Chest,
+            HumanBodyBones.Neck,
             HumanBodyBones.Head,
             HumanBodyBones.LeftUpperArm,  HumanBodyBones.LeftLowerArm,  HumanBodyBones.LeftHand,
             HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm, HumanBodyBones.RightHand,
@@ -99,7 +101,8 @@ public class BodyController : MonoBehaviour
         {
             (HumanBodyBones.Hips,         HumanBodyBones.Spine),
             (HumanBodyBones.Spine,        HumanBodyBones.Chest),
-            (HumanBodyBones.Chest,        HumanBodyBones.Head),
+            (HumanBodyBones.Chest,        HumanBodyBones.Neck),
+            (HumanBodyBones.Neck,        HumanBodyBones.Head),
             (HumanBodyBones.LeftUpperArm,  HumanBodyBones.LeftLowerArm),
             (HumanBodyBones.LeftLowerArm,  HumanBodyBones.LeftHand),
             (HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm),
@@ -209,14 +212,17 @@ public class BodyController : MonoBehaviour
 
         Vector3 midHip = Mid(23, 24);
         Vector3 midShoulder = Mid(11, 12);
+        Vector3 midChest = (midHip - midShoulder) *.5f;
+        Vector3 midHead = Mid(7, 8);
 
         if (enableSpine)
         {
             // Spine/Hips: direction from hips up toward shoulders
             RotateBone(HumanBodyBones.Hips, midHip, midShoulder);
-            RotateBone(HumanBodyBones.Spine, midHip, midShoulder);
+            //RotateBone(HumanBodyBones.Spine, midHip, midShoulder);
+
             // Chest: direction from shoulders toward head (nose used as head proxy)
-            RotateBone(HumanBodyBones.Chest, midShoulder, Lm(0));
+            //RotateBone(HumanBodyBones.Chest, midChest, midShoulder);
         }
 
         if (enableArms)
@@ -233,6 +239,12 @@ public class BodyController : MonoBehaviour
             RotateBone(HumanBodyBones.LeftLowerLeg, Lm(25), Lm(27));
             RotateBone(HumanBodyBones.RightUpperLeg, Lm(24), Lm(26));
             RotateBone(HumanBodyBones.RightLowerLeg, Lm(26), Lm(28));
+        }
+
+        if (enableHead) 
+        {
+            RotateBone(HumanBodyBones.Head, midShoulder, Lm(0));
+            //RotateBone(HumanBodyBones.Chest, midShoulder, Lm(7 / 8));
         }
     }
 
@@ -265,6 +277,19 @@ public class BodyController : MonoBehaviour
     {
         if (!drawGizmos || currentLandmarks == null || currentLandmarks.Count == 0) return;
 
+        Vector3 midHip = Mid(23, 24);
+        Vector3 midShoulder = Mid(11, 12);
+        Vector3 midChest = (midHip - midShoulder) * .5f;
+        Vector3 midHead = Mid(7, 8);
+
+        Gizmos.DrawSphere(transform.position + midHip, 0.05f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(transform.position + midShoulder, 0.05f);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(transform.position + midChest, 0.05f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(transform.position + midHead, 0.05f);
+
         Gizmos.color = Color.green;
         foreach (var lm in currentLandmarks)
         {
@@ -273,7 +298,7 @@ public class BodyController : MonoBehaviour
                  lm.y * gizmoScale,
                  lm.z * gizmoScale
             );
-            Gizmos.DrawSphere(world, 0.05f);
+            Gizmos.DrawSphere(transform.position + world, 0.05f);
         }
     }
 }
