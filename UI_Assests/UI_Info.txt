@@ -7,6 +7,6 @@ Colors:
 -c40000 (bright red)
 -dadada (grey)
 -676767 (dark grey)
--
+-585858 (darker grey for the score and multiplier)
 
 Font: Muro
