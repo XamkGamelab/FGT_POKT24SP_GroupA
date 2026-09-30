@@ -206,7 +206,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 69
+  m_fontSize: 54.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -368,7 +368,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &272884042
 RectTransform:
   m_ObjectHideFlags: 0
@@ -476,10 +476,10 @@ RectTransform:
   - {fileID: 1553172057}
   m_Father: {fileID: 1624225945}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 112.28747, y: -36.046043}
+  m_SizeDelta: {x: 224.57494, y: 72.09209}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &322464709
 MonoBehaviour:
@@ -988,7 +988,7 @@ GameObject:
   - component: {fileID: 692180243}
   - component: {fileID: 692180242}
   m_Layer: 5
-  m_Name: OverlayPanel1
+  m_Name: PauseMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1152,7 +1152,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42.85
+  m_fontSize: 27.2
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1235,8 +1235,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1434379311}
   - {fileID: 1624225945}
+  - {fileID: 1434379311}
   m_Father: {fileID: 272884042}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.26500002, y: 0.1651209}
@@ -1565,7 +1565,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 59.2
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1653,9 +1653,9 @@ MonoBehaviour:
   - {fileID: 272884043}
   - {fileID: 927059924}
   startEnabled:
-  - {fileID: 692180240}
-  startDisabled:
   - {fileID: 152252482}
+  startDisabled:
+  - {fileID: 692180240}
   - {fileID: 272884041}
   - {fileID: 927059922}
   lobbyCanvasName: 
@@ -1711,10 +1711,10 @@ RectTransform:
   - {fileID: 453468572}
   m_Father: {fileID: 1624225945}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 112.28747, y: -200.23813}
+  m_SizeDelta: {x: 224.57494, y: 72.09209}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1454623124
 MonoBehaviour:
@@ -1845,7 +1845,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 362.3854, y: -374.5101}
+  m_AnchoredPosition: {x: 235.26999, y: -374.5101}
   m_SizeDelta: {x: 474.3721, y: 211.6467}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1480486908
@@ -1960,7 +1960,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 59.2
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2099,7 +2099,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 64.5
+  m_fontSize: 63.95
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2795,7 +2795,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 362.3854, y: -134.34337}
+  m_AnchoredPosition: {x: 235.26999, y: -134.34337}
   m_SizeDelta: {x: 704.71, y: 268.68674}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1803663917
