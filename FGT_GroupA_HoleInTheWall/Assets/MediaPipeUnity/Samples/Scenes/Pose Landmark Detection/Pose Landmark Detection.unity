@@ -340,12 +340,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BodyController
   animator: {fileID: 223904840}
-  smoothSpeed: 50
+  modelRoot: {fileID: 844295578}
+  trackingCamera: {fileID: 1969388816}
+  smoothSpeed: 25
   mirrorMovement: 1
+  headOffset: -0.25
   enableArms: 1
   enableLegs: 1
   enableSpine: 1
   enableHead: 1
+  enableRootMovement: 1
+  movementScale: 10
+  depthMovementScale: 3
+  verticalMovementScale: 0.5
+  rootMovementSmooth: 8
+  movementDeadzone: 0.01
+  enableRootRotation: 1
+  rootRotationSmooth: 8
+  rotationMultiplier: 1
+  rotationDeadzone: 2
+  calibrateAutomatically: 1
+  calibrationDelay: 1
   drawGizmos: 1
   gizmoScale: 5
 --- !u!4 &718106918
@@ -393,8 +408,13 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 122
+  m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!4 &844295578 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e4de7dfbb6a236a48b99e7b34dbe949f, type: 3}
+  m_PrefabInstance: {fileID: 1687293727}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &864678860
 GameObject:
   m_ObjectHideFlags: 0
