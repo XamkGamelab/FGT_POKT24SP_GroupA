@@ -1,13 +1,14 @@
+
 {
   "dependencies": {
-<<<<<<< HEAD
+
     "com.junsk1games.canvasmanagement": {
       "version": "https://github.com/Junski1/CanvasManagement.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "9332d145c3ae1f12416f20380c21540459aee7ea"
-=======
+    },
     "com.github.homuler.mediapipe": {
       "version": "file:com.github.homuler.mediapipe",
       "depth": 0,
@@ -16,7 +17,6 @@
         "com.unity.ugui": "1.0.0",
         "com.unity.test-framework": "1.0.0"
       }
->>>>>>> Gosso
     },
     "com.unity.ai.navigation": {
       "version": "2.0.14",
