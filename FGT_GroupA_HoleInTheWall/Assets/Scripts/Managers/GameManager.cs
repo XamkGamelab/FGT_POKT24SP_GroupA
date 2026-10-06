@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
 
 
     public static readonly UnityEvent StartGameEvent = new UnityEvent();
+    public static readonly UnityEvent InitBodyControllerEvent = new UnityEvent();
     public static readonly UnityEvent EndGameEvent = new UnityEvent();
 
 
@@ -61,6 +62,7 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
 
             SpawnPlayers();
+            InitBodyControllerEvent.Invoke();
            // PlayGameMusic();
             CanvasManager.ShowGameCanvas.Invoke();
             ObstacleManager.SpawnNewObstacleEvent.Invoke();
@@ -106,7 +108,10 @@ public class GameManager : MonoBehaviour
         if (playerPrefab == null)
             return;
 
-       players.Add(Instantiate(playerPrefab, playerHolder).GetComponent<Player>());
+        Player _playerInstance = Instantiate(playerPrefab, playerHolder).GetComponent<Player>();
+
+        BodyController.AddPlayerToBodyControllerEvent.Invoke(_playerInstance);
+        players.Add(_playerInstance);
     }
 
     private void DeletePlayers()

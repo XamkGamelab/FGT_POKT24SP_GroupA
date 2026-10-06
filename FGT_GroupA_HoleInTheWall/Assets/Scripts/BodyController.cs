@@ -3,6 +3,7 @@ using Mediapipe.Unity.Sample.PoseLandmarkDetection;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Full-body MediaPipe controller.
@@ -27,11 +28,7 @@ public class BodyController : MonoBehaviour
 
     [Header("References")]
 
-    [Tooltip("Animator component on X Bot.")]
-    public Animator animator;
-
-    [Tooltip("Root Transform of X Bot. Drag X Bot here.")]
-    public Transform modelRoot;
+    [SerializeField] private Player player;
 
     [Tooltip("Main Camera used for camera-relative movement.")]
     public Camera trackingCamera;
@@ -174,18 +171,29 @@ public class BodyController : MonoBehaviour
 
     private bool calibrated = false;
 
+    public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
 
+    private void Awake()
+    {
+        AddPlayerToBodyControllerEvent.AddListener((_player) =>
+        {
+            player = _player;
+            print(player);
+        });
+
+        GameManager.InitBodyControllerEvent.AddListener(StartGame);
+    }
     // ============================================================
     // START
     // ============================================================
 
-    private void Start()
+    private void StartGame()
     {
         // -----------------------------
         // Check Animator
         // -----------------------------
 
-        if (animator == null)
+        if (player.Animator == null)
         {
             Debug.LogError(
                 "[BodyController] Animator is not assigned!"
@@ -199,7 +207,7 @@ public class BodyController : MonoBehaviour
         // Check Model Root
         // -----------------------------
 
-        if (modelRoot == null)
+        if (player.modelRoot == null)
         {
             Debug.LogError(
                 "[BodyController] Model Root is not assigned!"
@@ -245,9 +253,9 @@ public class BodyController : MonoBehaviour
         // Save X Bot starting transform
         // -----------------------------
 
-        initialRootPosition = modelRoot.position;
+        initialRootPosition = player.modelRoot.position;
 
-        initialRootRotation = modelRoot.rotation;
+        initialRootRotation = player.modelRoot.rotation;
 
 
         // -----------------------------
@@ -315,12 +323,12 @@ public class BodyController : MonoBehaviour
 
         // Save X Bot position
         initialRootPosition =
-            modelRoot.position;
+            player.modelRoot.position;
 
 
         // Save X Bot rotation
         initialRootRotation =
-            modelRoot.rotation;
+            player.modelRoot.rotation;
 
 
         calibrated = true;
@@ -379,7 +387,7 @@ public class BodyController : MonoBehaviour
         foreach (HumanBodyBones bone in bones)
         {
             Transform t =
-                animator.GetBoneTransform(bone);
+                player.Animator.GetBoneTransform(bone);
 
 
             if (t != null)
@@ -800,9 +808,9 @@ public class BodyController : MonoBehaviour
 
         // Smooth movement
 
-        modelRoot.position =
+        player.modelRoot.position =
             Vector3.Lerp(
-                modelRoot.position,
+                player.modelRoot.position,
                 targetPosition,
                 Time.deltaTime *
                 rootMovementSmooth
@@ -962,9 +970,9 @@ public class BodyController : MonoBehaviour
             );
 
 
-        modelRoot.rotation =
+        player.modelRoot.rotation =
             Quaternion.Slerp(
-                modelRoot.rotation,
+                player.modelRoot.rotation,
                 targetRotation,
                 Time.deltaTime *
                 rootRotationSmooth
@@ -1465,12 +1473,12 @@ public class BodyController : MonoBehaviour
 
 
             Gizmos.DrawLine(
-                modelRoot != null
-                    ? modelRoot.position
+                player.modelRoot != null
+                    ? player.modelRoot.position
                     : transform.position,
 
-                (modelRoot != null
-                    ? modelRoot.position
+                (player.modelRoot != null
+                    ? player.modelRoot.position
                     : transform.position)
                 + forward
             );
