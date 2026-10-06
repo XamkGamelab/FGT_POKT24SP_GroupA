@@ -586,9 +586,9 @@ MonoBehaviour:
   enableSpine: 1
   enableHead: 1
   enableRootMovement: 1
-  movementScale: 3
+  movementScale: 30
   depthMovementScale: 3
-  verticalMovementScale: 0.5
+  verticalMovementScale: 1
   rootMovementSmooth: 8
   movementDeadzone: 0.01
   enableRootRotation: 1
@@ -662,7 +662,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 669111439}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1235,7 +1235,7 @@ PrefabInstance:
       objectReference: {fileID: 1856394977}
     - target: {fileID: 8571076842338426122, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_RenderMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842338426133, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_Pivot.x
@@ -1381,6 +1381,10 @@ PrefabInstance:
       propertyPath: _baseRunner
       value: 
       objectReference: {fileID: 1425826110}
+    - target: {fileID: 8571076843237194837, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8571076843876106072, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_Color.a
       value: 0.21568628

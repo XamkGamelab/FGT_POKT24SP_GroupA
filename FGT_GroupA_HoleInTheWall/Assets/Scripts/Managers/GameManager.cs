@@ -62,7 +62,10 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
 
             SpawnPlayers();
+
+            //Change this to get Bool and not start if cannot Init
             InitBodyControllerEvent.Invoke();
+
            // PlayGameMusic();
             CanvasManager.ShowGameCanvas.Invoke();
             ObstacleManager.SpawnNewObstacleEvent.Invoke();

@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   maxHealth: 3
-  modelRoot: {fileID: 7509601313188472593}
+  modelRoot: {fileID: 2359393147102215439}
 --- !u!54 &5029183725509967298
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -70,10 +70,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 122
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!1001 &1070293121925796908
 PrefabInstance:
@@ -243,11 +243,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.002, y: 0.007, z: 0.002}
   m_Center: {x: 0, y: 0.002, z: 0}
---- !u!4 &7509601313188472593 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -1806779667075976387, guid: 21e54ef8363fb194fa1ccfc4ee89cef0, type: 3}
-  m_PrefabInstance: {fileID: 1070293121925796908}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8722542648905327815 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -588067475013488405, guid: 21e54ef8363fb194fa1ccfc4ee89cef0, type: 3}

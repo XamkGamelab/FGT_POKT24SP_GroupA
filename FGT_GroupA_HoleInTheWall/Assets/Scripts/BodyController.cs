@@ -300,6 +300,8 @@ public class BodyController : MonoBehaviour
 
     public void Calibrate()
     {
+        //Make this return Bool so that GameManager can get info if cannot calibrate => dont start game
+
         if (currentLandmarks == null ||
             currentLandmarks.Count < 33)
         {

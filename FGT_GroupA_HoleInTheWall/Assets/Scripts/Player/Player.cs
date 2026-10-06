@@ -39,6 +39,7 @@ public class Player : MonoBehaviour
         streak.Value = 0;
 
         animator = GetComponentInChildren<Animator>();
+        modelRoot = transform;
 
         cols = GetComponentsInChildren<Collider>().ToList();
         rb = GetComponent<Rigidbody>();
@@ -76,7 +77,9 @@ public class Player : MonoBehaviour
 
     void Die()
     {
+        //Enable Ragdoll
         rb.useGravity = true;
+        rb.isKinematic = true;
         rb.AddExplosionForce(10000, transform.position + new Vector3(Random.Range(0,1f), 0, Random.Range(0, 1f)), Random.Range(.2f, 1f));
         //GameManager.EndGameEvent.Invoke();
     }
@@ -91,9 +94,9 @@ public class Player : MonoBehaviour
     {
         cols.ForEach((_col) => _col.enabled = false);
         //QuickFix
-        rb.useGravity = false;
+       // rb.useGravity = false;
         yield return FlashRed();
-        rb.useGravity = true;
+        //rb.useGravity = true;
         cols.ForEach((_col) => _col.enabled = true);
     }
 
