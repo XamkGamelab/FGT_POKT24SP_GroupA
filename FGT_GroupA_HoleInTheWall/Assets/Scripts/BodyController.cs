@@ -79,8 +79,8 @@ public class BodyController : MonoBehaviour
     [Tooltip("Vertical movement multiplier.")]
     public float verticalMovementScale = 0.5f;
 
-    [Tooltip("Smoothness of whole-body movement.")]
-    public float rootMovementSmooth = 8f;
+    [Tooltip("Time that whole-body movement takes.")]
+    public float rootMovementTime = .25f;
 
     [Tooltip("Ignore tiny movements caused by tracking noise.")]
     public float movementDeadzone = 0.01f;
@@ -728,6 +728,7 @@ public class BodyController : MonoBehaviour
     // ROOT MOVEMENT
     // ============================================================
 
+    IEnumerator moveCoroutine;
     private void ApplyRootMovement()
     {
         Vector3 currentHip =
@@ -809,14 +810,33 @@ public class BodyController : MonoBehaviour
 
 
         // Smooth movement
+        if(moveCoroutine != null)
+            StopCoroutine( moveCoroutine );
+       
+        moveCoroutine = SmoothMove(player.modelRoot.position, targetPosition, rootMovementTime);
 
-        player.modelRoot.position =
-            Vector3.Lerp(
-                player.modelRoot.position,
-                targetPosition,
-                Time.deltaTime *
-                rootMovementSmooth
-            );
+        //player.modelRoot.position =
+        //    Vector3.Lerp(
+        //        player.modelRoot.position,
+        //        targetPosition,
+        //        Time.deltaTime *
+        //        rootMovementSmooth
+        //    );
+    }
+
+    private IEnumerator SmoothMove(Vector3 _curPos, Vector3 _targetPos, float _duration)
+    {
+        float _timePassed = 0f;
+        while(_timePassed < _duration)
+        {
+            _timePassed += Time.deltaTime;
+
+            float _percent = _timePassed / _duration;
+            player.modelRoot.position = Vector3.Lerp(_curPos, _targetPos, _percent);
+            yield return null;
+        }
+        player.modelRoot.position = _targetPos;
+
     }
 
 
