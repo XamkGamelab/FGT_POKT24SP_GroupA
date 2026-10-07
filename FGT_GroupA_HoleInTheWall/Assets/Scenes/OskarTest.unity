@@ -578,7 +578,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BodyController
   player: {fileID: 0}
   trackingCamera: {fileID: 1856394977}
-  smoothSpeed: 10
+  smoothSpeed: 30
   mirrorMovement: 1
   headOffset: -0.25
   enableArms: 1
@@ -588,9 +588,9 @@ MonoBehaviour:
   enableRootMovement: 1
   movementScale: 30
   depthMovementScale: 3
-  verticalMovementScale: 1
-  rootMovementSmooth: 8
-  movementDeadzone: 0.01
+  verticalMovementScale: 30
+  rootMovementTime: 0.1
+  movementDeadzone: 0
   enableRootRotation: 1
   rootRotationSmooth: 8
   rotationMultiplier: 1
@@ -1439,7 +1439,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8571076844135231236, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.8539124
+      value: 2.8539429
       objectReference: {fileID: 0}
     - target: {fileID: 8571076844286272849, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AnchorMax.y

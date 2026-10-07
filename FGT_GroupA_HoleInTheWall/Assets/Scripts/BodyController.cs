@@ -728,7 +728,7 @@ public class BodyController : MonoBehaviour
     // ROOT MOVEMENT
     // ============================================================
 
-    IEnumerator moveCoroutine;
+    Coroutine moveCoroutine;
     private void ApplyRootMovement()
     {
         Vector3 currentHip =
@@ -810,10 +810,10 @@ public class BodyController : MonoBehaviour
 
 
         // Smooth movement
-        if(moveCoroutine != null)
+        if(moveCoroutine != null && targetPosition != Vector3.zero)
             StopCoroutine( moveCoroutine );
        
-        moveCoroutine = SmoothMove(player.modelRoot.position, targetPosition, rootMovementTime);
+        moveCoroutine = StartCoroutine(SmoothMove(player.modelRoot.position, targetPosition, rootMovementTime));
 
         //player.modelRoot.position =
         //    Vector3.Lerp(
