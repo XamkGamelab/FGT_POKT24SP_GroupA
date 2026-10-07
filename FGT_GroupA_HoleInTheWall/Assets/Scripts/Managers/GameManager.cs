@@ -10,9 +10,10 @@ public class GameManager : MonoBehaviour
 {
     [Header("Game")]
     private ReactiveProperty<float> gameSpeed = new();
-    [SerializeField] float gameSpeedIncrease = .1f;
+    [SerializeField] float gameSpeedDecrease = .1f;
 
-    [SerializeField] private int maxGameSpeed = 5;
+    [SerializeField] private float startGameSpeed = 5;
+    [SerializeField] private float minGameSpeed = 5;
     [SerializeField] private float wallWaitTime = 1f;
     public float WallWaitTime => wallWaitTime;
 
@@ -58,7 +59,7 @@ public class GameManager : MonoBehaviour
         {
             gameOn = true;
 
-            gameSpeed.Value = 1;
+            gameSpeed.Value = startGameSpeed;
             Time.timeScale = 1;
 
             SpawnPlayers();
@@ -131,7 +132,7 @@ public class GameManager : MonoBehaviour
 
     private void CheckForGameSpeed()
     {
-        gameSpeed.Value = Mathf.Clamp(gameSpeed.Value + gameSpeedIncrease, 1, maxGameSpeed);
+        gameSpeed.Value = Mathf.Clamp(gameSpeed.Value - gameSpeedDecrease, minGameSpeed, startGameSpeed);
         print(gameSpeed.Value);
     }
 }

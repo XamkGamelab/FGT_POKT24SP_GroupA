@@ -178,9 +178,13 @@ public class BodyController : MonoBehaviour
         AddPlayerToBodyControllerEvent.AddListener((_player) =>
         {
             player = _player;
-            print(player);
         });
 
+        Player.OnPlayerDeath += (() =>
+        {
+            enableRootMovement = false;
+            enableRootRotation = false;
+        });
         GameManager.InitBodyControllerEvent.AddListener(StartGame);
     }
     // ============================================================

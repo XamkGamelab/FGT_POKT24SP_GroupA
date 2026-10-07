@@ -5,6 +5,7 @@ using UniRx;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class Player : MonoBehaviour
 {
@@ -31,6 +32,8 @@ public class Player : MonoBehaviour
 
     private Color ogColor = Color.white;
     private Rigidbody rb = null;
+
+    public static Action OnPlayerDeath = delegate{};
 
     private void Awake()
     {
@@ -60,6 +63,8 @@ public class Player : MonoBehaviour
             print($"Streak: {_value}");
         }).AddTo(this);
 
+        OnPlayerDeath += HandleDeath;
+
         ogColor = rend.sharedMaterial.color;
     }
 
@@ -77,11 +82,16 @@ public class Player : MonoBehaviour
 
     void Die()
     {
+        OnPlayerDeath();
+        //GameManager.EndGameEvent.Invoke();
+    }
+
+    void HandleDeath()
+    {
         //Enable Ragdoll
         rb.useGravity = true;
-        rb.isKinematic = true;
-        rb.AddExplosionForce(10000, transform.position + new Vector3(Random.Range(0,1f), 0, Random.Range(0, 1f)), Random.Range(.2f, 1f));
-        //GameManager.EndGameEvent.Invoke();
+        rb.isKinematic = false;
+        rb.AddExplosionForce(1000, transform.position + new Vector3(UnityEngine.Random.Range(0, 1f), 0, UnityEngine.Random.Range(0, 1f)), UnityEngine.Random.Range(.2f, 1f));
     }
 
     public void AddScore(int _scoreAmount)

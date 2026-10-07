@@ -17,28 +17,9 @@ public class WallGenerator : MonoBehaviour
 
     void Start()
     {
+        GenerateWall();
         //put GenerateWall() here when it is attached to the wall instantiation script. OnGUI() elements are just for debugging and shii
     }
-
-
-    void OnGUI()
-    {
-        //generate wall button
-        if (GUI.Button(new Rect(10, 10, 150, 100), "Generate wall"))
-        {
-            GenerateWall();
-        }
-
-        //destroy wall button
-        else if (GUI.Button(new Rect(10, 200, 150, 100), "Destroy wall"))
-        {
-            for (int i = transform.childCount - 1; i >= 0; i--)
-            {
-                Destroy(transform.GetChild(i).gameObject);
-            }
-        }
-    }
-
 
     void GenerateWall()
     {
@@ -55,12 +36,13 @@ public class WallGenerator : MonoBehaviour
             int row = i / columnLength;
 
             //calculate the position
-            Vector3 position = new Vector3(x_Start + (x_Space * column), y_Start + (-y_Space * row), 0);
+            Vector3 position = new Vector3(transform.position.x + (x_Space * column), transform.position.y + (-y_Space * row), transform.position.z);
 
             //if this is the randomly selected column, spawn the shape instead of the gap
             if (column == shapeColumn)
             {
-                Instantiate(shapeObjects[randomShape], position, Quaternion.identity, transform);
+                //Testing, disabled collider 
+                Instantiate(shapeObjects[randomShape], position, Quaternion.identity, transform).GetComponent<Collider>().enabled = false;
             }
             else
             {
