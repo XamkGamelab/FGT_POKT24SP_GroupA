@@ -18,6 +18,7 @@ public class ObstacleObject : MonoBehaviour
     {
         deletePos = Camera.main.transform.position;
         deletePos.y = transform.position.y;
+        deletePos.x = transform.position.x;
         startPos = transform.position;
     }
 
@@ -78,5 +79,10 @@ public class ObstacleObject : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Player p))
             p.AddScore(scoreAmount);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(deletePos, 1f);
     }
 }

@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     [Header("Player")]
     [SerializeField] private GameObject playerPrefab  = null;
     [SerializeField] private Transform playerHolder  = null;
-    private HashSet<Player> players = new HashSet<Player>();
+    private List<Player> players = new List<Player>();
 
     [Header("Music")]
     [SerializeField] private AudioSource menuMusicStart = null;

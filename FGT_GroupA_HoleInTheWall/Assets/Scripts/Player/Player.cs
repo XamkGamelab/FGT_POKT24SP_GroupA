@@ -33,7 +33,7 @@ public class Player : MonoBehaviour
     private Color ogColor = Color.white;
     private Rigidbody rb = null;
 
-    public static Action OnPlayerDeath = delegate{};
+    public static event Action OnPlayerDeath = delegate{};
 
     private void Awake()
     {

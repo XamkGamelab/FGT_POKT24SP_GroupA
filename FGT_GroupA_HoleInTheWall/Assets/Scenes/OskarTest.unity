@@ -597,7 +597,7 @@ MonoBehaviour:
   rotationDeadzone: 2
   calibrateAutomatically: 1
   calibrationDelay: 1
-  drawGizmos: 0
+  drawGizmos: 1
   gizmoScale: 5
 --- !u!4 &634631558
 Transform:
@@ -1236,7 +1236,7 @@ PrefabInstance:
       objectReference: {fileID: 1856394977}
     - target: {fileID: 8571076842338426122, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_RenderMode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842338426133, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_Pivot.x

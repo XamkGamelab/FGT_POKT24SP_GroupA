@@ -65,7 +65,7 @@ MonoBehaviour:
   y_Start: 0
   columnLength: 3
   rowLength: 1
-  x_Space: 5
+  x_Space: 3
   y_Space: 1
   gapObject: {fileID: 6129207006618272564, guid: e0385a72a663d174f99c1674710965fe, type: 3}
   shapeObjects:
