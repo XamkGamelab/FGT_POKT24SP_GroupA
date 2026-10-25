@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 398177524952165382}
   - component: {fileID: 8678669332039050458}
   - component: {fileID: 8827169382357917863}
-  - component: {fileID: 1303370701973028775}
   - component: {fileID: 782335837535368725}
+  - component: {fileID: 346047885545771193}
   m_Layer: 0
   m_Name: Obstacle 1
   m_TagString: Untagged
@@ -72,7 +72,28 @@ MonoBehaviour:
   - {fileID: 6150817418765869249, guid: 2aa5a3b7d22e67649b59b62704acb7ef, type: 3}
   - {fileID: 8043894566655953230, guid: d01d1c4dd535eef40a0ae498783f7f84, type: 3}
   - {fileID: 3470071694347998151, guid: c187926fba67f2e43bc3828b0ab52e28, type: 3}
---- !u!54 &1303370701973028775
+--- !u!65 &782335837535368725
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8056780635427606546}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 8.68495, y: 4.1283927, z: 0.235708}
+  m_Center: {x: 3, y: 2.0111544, z: 0.60562104}
+--- !u!54 &346047885545771193
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,29 +115,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 118
-  m_CollisionDetection: 1
---- !u!65 &782335837535368725
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8056780635427606546}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0233603, y: 3.003509, z: 0.235708}
-  m_Center: {x: -0.016950607, y: 1.4487123, z: 0.60562104}
+  m_Constraints: 126
+  m_CollisionDetection: 0

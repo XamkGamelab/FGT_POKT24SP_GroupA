@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UniRx;
+using UnityEngine.SceneManagement;
 
 
 public class GameManager : MonoBehaviour
@@ -42,6 +43,8 @@ public class GameManager : MonoBehaviour
 
     private bool gameOn = false;
     public bool GameOn => gameOn;
+
+    private float gameTime = 0f;
 
     public static GameManager Instance = null;
 
@@ -83,6 +86,8 @@ public class GameManager : MonoBehaviour
         });
 
         OnObstaclePassEvent.AddListener(CheckForGameSpeed);
+
+        SceneManager.LoadScene(1, LoadSceneMode.Additive);
     }
     // Start is called before the first frame update
     private void Start()
@@ -91,6 +96,29 @@ public class GameManager : MonoBehaviour
         //PlayMenuMusic();
     }
 
+    private void Update()
+    {
+        if (!gameOn)
+            return;
+
+        AddToGameTime();
+    }
+
+    TimeSpan time;
+    void AddToGameTime()
+    {
+        gameTime += Time.deltaTime;
+
+        time = TimeSpan.FromSeconds(gameTime);
+
+        // Muotoillaan merkkijonoksi: mm (minuutit), ss (sekunnit), fff (millisekunnit)
+        string _formattedTime = string.Format("{0:D2}:{1:D2}:{2:D3}",
+            time.Minutes,
+            time.Seconds,
+            time.Milliseconds);
+
+        UIScoreController.ChangeGameTimeUIEvent.Invoke(_formattedTime);
+    }
     private void PlayMenuMusic()
     {
         gameMusic.Stop();

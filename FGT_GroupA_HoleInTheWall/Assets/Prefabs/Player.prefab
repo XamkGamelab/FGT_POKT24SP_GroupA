@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeee9cbb914e1e0489fc10c115bd3c14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  maxHealth: 3
+  maxHealth: 4
   modelRoot: {fileID: 2359393147102215439}
 --- !u!54 &5029183725509967298
 Rigidbody:

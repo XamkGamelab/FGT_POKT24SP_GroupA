@@ -68,17 +68,24 @@ public class ObstacleObject : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.TryGetComponent(out Player p))
+        if (collision.gameObject.GetComponentInParent<Player>() != null)
         {
-            p.TakeDmg();
+            Player _p = collision.gameObject.GetComponentInParent<Player>();
+            _p.TakeDmg();
             //SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent(out Player p))
-            p.AddScore(scoreAmount);
+        if (other.gameObject.GetComponentInParent<Player>() != null)
+        {
+            Player _p = other.gameObject.GetComponentInParent<Player>();
+            _p.AddScore(scoreAmount);
+            //SoundFXManager.Instance.PlayAudioClip(hitAudio, transform);
+        }
+        //if (other.gameObject.TryGetComponent(out Player p))
+        //    p.AddScore(scoreAmount);
     }
 
     private void OnDrawGizmos()

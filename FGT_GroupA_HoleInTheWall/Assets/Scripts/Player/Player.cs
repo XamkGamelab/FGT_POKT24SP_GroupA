@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
 {
 
     private ReactiveProperty<int> health = new();
-    [SerializeField] private int maxHealth = 3;
+    [SerializeField] private int maxHealth = 4;
 
     [Header("REFS")]
     [Tooltip("Animator component on X Bot.")]
@@ -33,14 +33,15 @@ public class Player : MonoBehaviour
     private Color ogColor = Color.white;
     private Rigidbody rb = null;
 
+    private bool hitCurWall = false;
+    public bool HitCurWall => hitCurWall;
+    private bool scoreAddedCurWall = false;
+    public bool ScoreAddedCurWall => scoreAddedCurWall;
+    private bool isDead = false;
     public static event Action OnPlayerDeath = delegate{};
 
     private void Awake()
     {
-        health.Value = maxHealth;
-        score.Value = 0;
-        streak.Value = 0;
-
         animator = GetComponentInChildren<Animator>();
         modelRoot = transform;
 
@@ -51,28 +52,45 @@ public class Player : MonoBehaviour
         health.Subscribe(_value =>
         {
             print($"Health: {_value}");
+            UIHealthController.ChangeHealthUIEvent.Invoke(_value);
         }).AddTo(this);
 
         score.Subscribe(_value =>
         {
             print($"Score: {_value}");
+            UIScoreController.ChangeScoreUIEvent.Invoke(_value);
         }).AddTo(this);
 
         streak.Subscribe(_value =>
         {
-            print($"Streak: {_value}");
+            print($"streak: {_value}");
+            UIScoreController.ChangeStreakUIEvent.Invoke(_value);
         }).AddTo(this);
 
         OnPlayerDeath += HandleDeath;
 
-        ogColor = rend.sharedMaterial.color;
-    }
+        ObstacleManager.SpawnNewObstacleEvent.AddListener(ResetHit);
 
+
+
+        ogColor = rend.sharedMaterial.color;
+
+        health.Value = maxHealth;
+        score.Value = 0;
+        streak.Value = 0;
+    }
+    private void ResetHit()
+    {
+        scoreAddedCurWall = false;
+        hitCurWall = false;
+    }
     public void TakeDmg()
     {
         health.Value--;
+        health.Value = Math.Clamp(health.Value, 0, maxHealth);
         streak.Value = 0;
 
+        hitCurWall = true;
 
         if (health.Value <= 0)
             Die();
@@ -89,6 +107,7 @@ public class Player : MonoBehaviour
     void HandleDeath()
     {
         //Enable Ragdoll
+        isDead = true;
         rb.useGravity = true;
         rb.isKinematic = false;
         rb.AddExplosionForce(1000, transform.position + new Vector3(UnityEngine.Random.Range(0, 1f), 0, UnityEngine.Random.Range(0, 1f)), UnityEngine.Random.Range(.2f, 1f));
@@ -96,8 +115,19 @@ public class Player : MonoBehaviour
 
     public void AddScore(int _scoreAmount)
     {
+        if (isDead)
+            return;
+
+        if (hitCurWall)
+            return;
+
+        if (scoreAddedCurWall)
+            return;
+
         score.Value += Mathf.RoundToInt(_scoreAmount * (1 + streak.Value * .1f));
         streak.Value++;
+
+        scoreAddedCurWall = true;
     }
 
     private IEnumerator HandleWallHit()
@@ -116,5 +146,11 @@ public class Player : MonoBehaviour
         print("moi");
         yield return new WaitForSeconds(1f);
         rend.material.color = ogColor;
+    }
+
+
+    private void OnDestroy()
+    {
+        ObstacleManager.SpawnNewObstacleEvent.RemoveListener(ResetHit);
     }
 }
