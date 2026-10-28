@@ -8,7 +8,6 @@ using UnityEngine.Events;
 public class ObstacleManager : MonoBehaviour
 {
     [SerializeField] private ObstacleObject[] obstacles = null;
-    private float gameSpeed = 1f;
 
     [SerializeField] Transform obstacleSpawnPoint = null;
     [SerializeField] Transform obstacleHolder = null;
@@ -23,13 +22,8 @@ public class ObstacleManager : MonoBehaviour
         {
            SpawnObject(obstacles[0], obstacleSpawnPoint.position);
 
-            StartCoroutine(PlayWallMoveAnimations());
+           StartCoroutine(PlayWallMoveAnimations());
         });
-
-        GameManager.OnUpdateGameSpeed += (_speed) =>
-        {
-            gameSpeed = _speed;
-        };
 
         GameManager.EndGameEvent.AddListener(() =>
         {
@@ -46,7 +40,6 @@ public class ObstacleManager : MonoBehaviour
     private void SpawnObject(ObstacleObject _go, Vector3 _pos)
     {
         curObstacle = Instantiate(_go, _pos, Quaternion.identity, obstacleHolder);
-        curObstacle.Init(gameSpeed);
     }
 
     private IEnumerator PlayWallMoveAnimations()
@@ -55,7 +48,9 @@ public class ObstacleManager : MonoBehaviour
         //Get the time of them and wait for that long
         //for now a variable in GmaeManager
         yield return new WaitForSeconds(GameManager.Instance.WallWaitTime);
-        curObstacle.StartMove();
+
+        yield return new WaitUntil(() => GameManager.Instance.CurGameState == GameManager.GameState.GameOn);
+        curObstacle.StartMove(GameManager.Instance.GameSpeed);
 
     }
 }

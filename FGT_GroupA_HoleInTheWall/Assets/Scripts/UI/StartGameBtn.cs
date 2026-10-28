@@ -5,5 +5,5 @@ using UnityEngine.UI;
 public class StartGameBtn : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake() => GetComponent<Button>().onClick.AddListener(GameManager.StartGameEvent.Invoke);
+    void Awake() => GetComponent<Button>().onClick.AddListener(GameManager.ChekcForStartGameEvent.Invoke);
 }

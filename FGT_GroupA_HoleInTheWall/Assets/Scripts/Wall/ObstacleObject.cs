@@ -9,8 +9,6 @@ public class ObstacleObject : MonoBehaviour
     private Vector3 startPos = Vector3.zero;
     private Vector3 deletePos = Vector3.zero;
 
-    private float gameSpeed = 1f;
-
     [SerializeField] private int scoreAmount = 10;
 
     // Start is called before the first frame update
@@ -22,20 +20,12 @@ public class ObstacleObject : MonoBehaviour
         startPos = transform.position;
     }
 
-    //This is called from ObstacleManager after a set amount of time
-    private void SetGameSpeed(float _speed) => gameSpeed = _speed;
-
-    public void Init(float _gameSpeed)
+    public void StartMove(float _dur)
     {
-        SetGameSpeed(_gameSpeed);
-    }
-
-    public void StartMove()
-    {
-        if (!GameManager.Instance.GameOn)
+        if (GameManager.Instance.CurGameState != GameManager.GameState.GameOn)
             return;
 
-        StartCoroutine(StartMoveLerp(gameSpeed));
+        StartCoroutine(StartMoveLerp(_dur));
     }
 
     IEnumerator StartMoveLerp(float _dur)
@@ -44,6 +34,10 @@ public class ObstacleObject : MonoBehaviour
         float _percent = 0;
         while(_timeElapsed <= _dur)
         {
+
+            if (GameManager.Instance.CurGameState != GameManager.GameState.GameOn)
+                yield return null;
+
             _timeElapsed += Time.deltaTime;
             _percent = _timeElapsed / _dur;
             transform.position = Vector3.Lerp(startPos, deletePos, _percent);
@@ -61,9 +55,6 @@ public class ObstacleObject : MonoBehaviour
 
         //Tells ObstacleManager that it can spawn a new obstacle
         ObstacleManager.SpawnNewObstacleEvent.Invoke();
-
-        //UnSubcribe from OnUpdateGameSpeed
-        GameManager.OnUpdateGameSpeed -= SetGameSpeed;
         Destroy(gameObject);
     }
     private void OnCollisionEnter(Collision collision)
@@ -86,10 +77,5 @@ public class ObstacleObject : MonoBehaviour
         }
         //if (other.gameObject.TryGetComponent(out Player p))
         //    p.AddScore(scoreAmount);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawSphere(deletePos, 1f);
     }
 }

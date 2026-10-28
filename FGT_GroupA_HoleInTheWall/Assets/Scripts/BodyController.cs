@@ -173,8 +173,15 @@ public class BodyController : MonoBehaviour
 
     public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
 
+    public static BodyController Instance = null;
+
     private void Awake()
     {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(this);
+
         AddPlayerToBodyControllerEvent.AddListener((_player) =>
         {
             player = _player;
@@ -185,14 +192,17 @@ public class BodyController : MonoBehaviour
             enableRootMovement = false;
             enableRootRotation = false;
         });
-        GameManager.InitBodyControllerEvent.AddListener(StartGame);
     }
     // ============================================================
     // START
     // ============================================================
-
-    private void StartGame()
+    public IEnumerator HandleStartCalibrationCoroutine()
     {
+        yield return StartCoroutine(StartGame());
+    }
+    private IEnumerator StartGame()
+    {
+        print("Calibrationg");
         // -----------------------------
         // Check Animator
         // -----------------------------
@@ -203,7 +213,7 @@ public class BodyController : MonoBehaviour
                 "[BodyController] Animator is not assigned!"
             );
 
-            return;
+            yield return null;
         }
 
 
@@ -217,7 +227,7 @@ public class BodyController : MonoBehaviour
                 "[BodyController] Model Root is not assigned!"
             );
 
-            return;
+            yield return null;
         }
 
 
@@ -294,7 +304,7 @@ public class BodyController : MonoBehaviour
         }
 
 
-        Calibrate();
+        yield return StartCoroutine(Calibrate());
     }
 
 
@@ -302,7 +312,7 @@ public class BodyController : MonoBehaviour
     // CALIBRATE
     // ============================================================
 
-    public void Calibrate()
+    private IEnumerator Calibrate()
     {
         //Make this return Bool so that GameManager can get info if cannot calibrate => dont start game
 
@@ -314,12 +324,16 @@ public class BodyController : MonoBehaviour
                 "No pose detected."
             );
 
-            return;
+            yield return null;
         }
 
 
         // Current hip position
         initialHipPosition = Mid(23, 24);
+
+
+        //TODO
+        //Wait until player is center of the camera
 
 
         // Current body facing direction
@@ -690,7 +704,7 @@ public class BodyController : MonoBehaviour
             calibrateAutomatically
         )
         {
-            Calibrate();
+            StartCoroutine(Calibrate());
         }
 
 

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Mediapipe.Unity.Sample.UI
@@ -25,7 +26,7 @@ namespace Mediapipe.Unity.Sample.UI
 
     private bool _isChanged;
 
-    private void Start()
+        private void Start()
     {
       InitializeContents();
     }
@@ -141,6 +142,7 @@ namespace Mediapipe.Unity.Sample.UI
 
       var imageSource = ImageSourceProvider.ImageSource;
       _isHorizontallyFlippedInput.isOn = imageSource.isHorizontallyFlipped;
+
       _isHorizontallyFlippedInput.onValueChanged.AddListener(delegate
       {
         imageSource.isHorizontallyFlipped = _isHorizontallyFlippedInput.isOn;
