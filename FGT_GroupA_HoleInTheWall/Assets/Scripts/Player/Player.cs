@@ -29,6 +29,7 @@ public class Player : MonoBehaviour
     private List<Collider> cols = null;
     private SkinnedMeshRenderer rend = null;
 
+    private ParticleSystem passEffect = null;
 
     private Color ogColor = Color.white;
     private Rigidbody rb = null;
@@ -40,10 +41,16 @@ public class Player : MonoBehaviour
     private bool isDead = false;
     public static event Action OnPlayerDeath = delegate{};
 
+    //These events are for spawning text or something on action
+    public static event Action<Player> OnObstacleHit = delegate{};
+    public static event Action<Player> OnObstaclePass = delegate{};
+
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
         modelRoot = transform;
+
+        passEffect = GetComponentInChildren<ParticleSystem>();
 
         cols = GetComponentsInChildren<Collider>().ToList();
         rb = GetComponent<Rigidbody>();
@@ -71,8 +78,6 @@ public class Player : MonoBehaviour
 
         ObstacleManager.SpawnNewObstacleEvent.AddListener(ResetHit);
 
-
-
         ogColor = rend.sharedMaterial.color;
 
         health.Value = maxHealth;
@@ -86,6 +91,8 @@ public class Player : MonoBehaviour
     }
     public void TakeDmg()
     {
+        //OnObstacleHit(this);
+
         health.Value--;
         health.Value = Math.Clamp(health.Value, 0, maxHealth);
         streak.Value = 0;
@@ -128,6 +135,11 @@ public class Player : MonoBehaviour
         streak.Value++;
 
         scoreAddedCurWall = true;
+
+        passEffect.Play();
+
+        
+        //OnObstaclePass(this);
     }
 
     private IEnumerator HandleWallHit()

@@ -44,7 +44,6 @@ public class GameManager : MonoBehaviour
     public static readonly UnityEvent EndGameEvent = new UnityEvent();
     public static readonly Action OnUnpauseGame = delegate { };
 
-    //UI events
     public static readonly UnityEvent OnObstaclePassEvent = new UnityEvent();
 
 

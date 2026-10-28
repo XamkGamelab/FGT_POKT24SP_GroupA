@@ -10,6 +10,7 @@ public class ObstacleObject : MonoBehaviour
     private Vector3 deletePos = Vector3.zero;
 
     [SerializeField] private int scoreAmount = 10;
+    public int ScoreAmount => scoreAmount;
 
     // Start is called before the first frame update
     void Awake()
