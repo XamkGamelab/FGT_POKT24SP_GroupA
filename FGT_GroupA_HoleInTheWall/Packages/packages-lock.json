@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.johannhotzel.manifoldcsg": {
+      "version": "https://github.com/JohannHotzel/manifold-csg-unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "bbfdab0f0ad028810826f532f21b3d51d38efd93"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.14",
       "depth": 0,
