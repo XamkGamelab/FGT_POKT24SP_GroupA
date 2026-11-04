@@ -499,7 +499,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BodyController
   player: {fileID: 0}
   trackingCamera: {fileID: 1856394977}
-  smoothSpeed: 30
+  boneRotateTime: 0.1
   mirrorMovement: 1
   headOffset: -0.25
   enableArms: 1
@@ -508,12 +508,12 @@ MonoBehaviour:
   enableHead: 1
   enableRootMovement: 1
   movementScale: 15
-  depthMovementScale: 0
+  depthMovementScale: 1
   verticalMovementScale: 10
   rootMovementTime: 0.1
   movementDeadzone: 0.01
   enableRootRotation: 1
-  rootRotationSmooth: 8
+  rootRotationTime: 0.25
   rotationMultiplier: 1
   rotationDeadzone: 2
   calibrateAutomatically: 1
@@ -1138,7 +1138,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1977501759
 Transform:
   m_ObjectHideFlags: 0
