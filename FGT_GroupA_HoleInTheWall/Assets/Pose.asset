@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 069c6126cec21ab4e8ac25840bca5ebd, type: 3}
+  m_Name: Pose
+  m_EditorClassIdentifier: Assembly-CSharp::Pose
+  poseName: Standing
+  overallScale: 1
+  bodyParts:
+  - partName: Torso
+    shape: 1
+    localPosition: {x: 0, y: 0.05, z: 0}
+    localRotation: {x: 0, y: 0, z: 0}
+    size: {x: 0.65, y: 1, z: 0.35}
+  - partName: Head
+    shape: 0
+    localPosition: {x: 0, y: 0.83, z: 0}
+    localRotation: {x: 0, y: 0, z: 0}
+    size: {x: 0.42, y: 0.42, z: 0.35}
+  - partName: Left arm
+    shape: 2
+    localPosition: {x: -0.65, y: 0.25, z: 0}
+    localRotation: {x: 0, y: 0, z: -90}
+    size: {x: 0.26, y: 1, z: 0.26}
+  - partName: Right arm
+    shape: 2
+    localPosition: {x: 0.65, y: 0.25, z: 0}
+    localRotation: {x: 0, y: 0, z: 90}
+    size: {x: 0.26, y: 1, z: 0.26}
+  - partName: Left leg
+    shape: 2
+    localPosition: {x: -0.18, y: -0.78, z: 0}
+    localRotation: {x: 0, y: 0, z: 90}
+    size: {x: 0.3, y: 1, z: 0.3}
+  - partName: Right leg
+    shape: 2
+    localPosition: {x: 0.18, y: -0.78, z: 0}
+    localRotation: {x: 0, y: 0, z: 90}
+    size: {x: 0.3, y: 1, z: 0.3}
