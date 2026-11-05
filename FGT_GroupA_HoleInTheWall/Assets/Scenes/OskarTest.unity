@@ -478,6 +478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 634631558}
   - component: {fileID: 634631557}
+  - component: {fileID: 634631559}
   m_Layer: 0
   m_Name: CameraManager
   m_TagString: Untagged
@@ -498,8 +499,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BodyController
   player: {fileID: 0}
-  trackingCamera: {fileID: 1856394977}
-  boneRotateTime: 0.1
+  boneRotationSpeed: 360
+  boneRotationDeadZone: 0.1
   mirrorMovement: 1
   headOffset: -0.25
   enableArms: 1
@@ -510,12 +511,12 @@ MonoBehaviour:
   movementScale: 15
   depthMovementScale: 1
   verticalMovementScale: 10
-  rootMovementTime: 0.1
-  movementDeadzone: 0.01
+  rootMovementTime: 0.25
+  movementDeadzone: 0.1
   enableRootRotation: 1
-  rootRotationTime: 0.25
+  rootRotationSpeed: 180
   rotationMultiplier: 1
-  rotationDeadzone: 2
+  rootRotationDeadzone: 2
   calibrateAutomatically: 1
   calibrationDelay: 1
   drawGizmos: 1
@@ -535,6 +536,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &634631559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 634631556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15aea0b3eff24d74e983061e1ef86657, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &669111439
 GameObject:
   m_ObjectHideFlags: 0
@@ -1236,7 +1249,7 @@ PrefabInstance:
       objectReference: {fileID: 1856394977}
     - target: {fileID: 8571076842338426122, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_RenderMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842338426122, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
