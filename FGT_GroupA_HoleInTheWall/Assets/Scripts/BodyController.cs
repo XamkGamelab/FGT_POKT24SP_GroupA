@@ -173,22 +173,36 @@ public class BodyController : MonoBehaviour
 
     public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
 
+    public static BodyController Instance = null;
+
     private void Awake()
     {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(this);
+
         AddPlayerToBodyControllerEvent.AddListener((_player) =>
         {
             player = _player;
-            print(player);
         });
 
-        GameManager.InitBodyControllerEvent.AddListener(StartGame);
+        Player.OnPlayerDeath += (() =>
+        {
+            enableRootMovement = false;
+            enableRootRotation = false;
+        });
     }
     // ============================================================
     // START
     // ============================================================
-
-    private void StartGame()
+    public IEnumerator HandleStartCalibrationCoroutine()
     {
+        yield return StartCoroutine(StartGame());
+    }
+    private IEnumerator StartGame()
+    {
+        print("Calibrationg");
         // -----------------------------
         // Check Animator
         // -----------------------------
@@ -199,7 +213,7 @@ public class BodyController : MonoBehaviour
                 "[BodyController] Animator is not assigned!"
             );
 
-            return;
+            yield return null;
         }
 
 
@@ -213,7 +227,7 @@ public class BodyController : MonoBehaviour
                 "[BodyController] Model Root is not assigned!"
             );
 
-            return;
+            yield return null;
         }
 
 
@@ -290,7 +304,7 @@ public class BodyController : MonoBehaviour
         }
 
 
-        Calibrate();
+        yield return StartCoroutine(Calibrate());
     }
 
 
@@ -298,7 +312,7 @@ public class BodyController : MonoBehaviour
     // CALIBRATE
     // ============================================================
 
-    public void Calibrate()
+    private IEnumerator Calibrate()
     {
         //Make this return Bool so that GameManager can get info if cannot calibrate => dont start game
 
@@ -310,12 +324,16 @@ public class BodyController : MonoBehaviour
                 "No pose detected."
             );
 
-            return;
+            yield return null;
         }
 
 
         // Current hip position
         initialHipPosition = Mid(23, 24);
+
+
+        //TODO
+        //Wait until player is center of the camera
 
 
         // Current body facing direction
@@ -686,7 +704,7 @@ public class BodyController : MonoBehaviour
             calibrateAutomatically
         )
         {
-            Calibrate();
+            StartCoroutine(Calibrate());
         }
 
 
@@ -728,7 +746,7 @@ public class BodyController : MonoBehaviour
     // ROOT MOVEMENT
     // ============================================================
 
-    IEnumerator moveCoroutine;
+    Coroutine moveCoroutine;
     private void ApplyRootMovement()
     {
         Vector3 currentHip =
@@ -810,10 +828,10 @@ public class BodyController : MonoBehaviour
 
 
         // Smooth movement
-        if(moveCoroutine != null)
+        if(moveCoroutine != null && targetPosition != Vector3.zero)
             StopCoroutine( moveCoroutine );
        
-        moveCoroutine = SmoothMove(player.modelRoot.position, targetPosition, rootMovementTime);
+        moveCoroutine = StartCoroutine(SmoothMove(player.modelRoot.position, targetPosition, rootMovementTime));
 
         //player.modelRoot.position =
         //    Vector3.Lerp(

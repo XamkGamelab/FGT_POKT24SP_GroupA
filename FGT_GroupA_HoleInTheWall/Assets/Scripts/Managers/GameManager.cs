@@ -4,22 +4,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UniRx;
+using UnityEngine.SceneManagement;
+using Mediapipe.Unity.Sample.UI;
 
 
 public class GameManager : MonoBehaviour
 {
+    public enum GameState
+    {
+        Menu,
+        GameOn,
+        Paused
+    }
     [Header("Game")]
-    private ReactiveProperty<float> gameSpeed = new();
-    [SerializeField] float gameSpeedIncrease = .1f;
+    private float gameSpeed = 0f;
+    public float GameSpeed => gameSpeed;
 
-    [SerializeField] private int maxGameSpeed = 5;
+    [SerializeField] float gameSpeedDecrease = .1f;
+
+    [SerializeField] private float startGameSpeed = 5f;
+    [SerializeField] private float minGameSpeed = 5f;
     [SerializeField] private float wallWaitTime = 1f;
     public float WallWaitTime => wallWaitTime;
 
     [Header("Player")]
     [SerializeField] private GameObject playerPrefab  = null;
     [SerializeField] private Transform playerHolder  = null;
-    private HashSet<Player> players = new HashSet<Player>();
+    private List<Player> players = new List<Player>();
 
     [Header("Music")]
     [SerializeField] private AudioSource menuMusicStart = null;
@@ -27,20 +38,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioSource gameMusic = null;
 
 
-    public static readonly UnityEvent StartGameEvent = new UnityEvent();
-    public static readonly UnityEvent InitBodyControllerEvent = new UnityEvent();
+    public static readonly UnityEvent ChekcForStartGameEvent = new UnityEvent();
+    public static Action OnInitBodyController = delegate { };
+
     public static readonly UnityEvent EndGameEvent = new UnityEvent();
+    public static readonly Action OnUnpauseGame = delegate { };
 
-
-    public static Action<float> OnUpdateGameSpeed = delegate { };
-
-    //UI events
-    public static Action<string> UpdateScoreEvent = delegate { };
     public static readonly UnityEvent OnObstaclePassEvent = new UnityEvent();
 
 
-    private bool gameOn = false;
-    public bool GameOn => gameOn;
+    private GameState curGameState = GameState.Menu;
+    public GameState CurGameState => curGameState;
+
+    private float gameTime = 0f;
 
     public static GameManager Instance = null;
 
@@ -52,44 +62,80 @@ public class GameManager : MonoBehaviour
         else
             Destroy(this);
 
-        gameSpeed.Subscribe(OnUpdateGameSpeed).AddTo(this);
-
-        StartGameEvent.AddListener(() =>
+        ChekcForStartGameEvent.AddListener(() =>
         {
-            gameOn = true;
+            curGameState = GameState.Paused;
 
-            gameSpeed.Value = 1;
-            Time.timeScale = 1;
-
-            SpawnPlayers();
-
-            //Change this to get Bool and not start if cannot Init
-            InitBodyControllerEvent.Invoke();
-
-           // PlayGameMusic();
-            CanvasManager.ShowGameCanvas.Invoke();
-            ObstacleManager.SpawnNewObstacleEvent.Invoke();
+            SpawnPlayers().ToObservable()
+                .SelectMany(BodyController.Instance.HandleStartCalibrationCoroutine())
+                .Subscribe(
+                onSuccess =>
+                {
+                    CanvasManager.CloseCanvas.Invoke(CanvasManager.CanvasType.Overlay);
+                    StartGame();
+                }, onError =>
+                {
+                    //Return to mainmenu if cannot start
+                   // CanvasManager.ShowCanvas.Invoke("MainMenu");
+                });
         });
 
         EndGameEvent.AddListener(() =>
         {
-            gameOn = false;
+            curGameState = GameState.Menu;
             DeletePlayers();
 
-            CanvasManager.ShowCanvas.Invoke("MainMenu");
+            //CanvasManager.ShowCanvas.Invoke("AddEntryToLeaderboard");
 
             //PlayMenuMusic();
         });
 
         OnObstaclePassEvent.AddListener(CheckForGameSpeed);
+
+        SceneManager.LoadScene(1, LoadSceneMode.Additive);
+        SceneManager.LoadScene(2, LoadSceneMode.Additive);
     }
     // Start is called before the first frame update
     private void Start()
     {
-        StartGameEvent.Invoke();
+        ChekcForStartGameEvent.Invoke();
         //PlayMenuMusic();
     }
 
+
+    private void StartGame()
+    {
+        gameSpeed = startGameSpeed;
+        Time.timeScale = 1;
+
+        // PlayGameMusic();
+        curGameState = GameState.GameOn;
+        CanvasManager.ShowGameCanvas.Invoke();
+        ObstacleManager.SpawnNewObstacleEvent.Invoke();
+    }
+    private void Update()
+    {
+        if (CurGameState != GameState.GameOn)
+            return;
+
+        AddToGameTime();
+    }
+
+    TimeSpan time;
+    void AddToGameTime()
+    {
+        gameTime += Time.deltaTime;
+
+        time = TimeSpan.FromSeconds(gameTime);
+
+        // Muotoillaan merkkijonoksi: mm (minuutit), ss (sekunnit), fff (millisekunnit)
+        string _formattedTime = string.Format("{0:D2}:{1:D2}:{2:D3}",
+            time.Minutes,
+            time.Seconds,
+            time.Milliseconds);
+
+        UIScoreController.ChangeGameTimeUIEvent.Invoke(_formattedTime);
+    }
     private void PlayMenuMusic()
     {
         gameMusic.Stop();
@@ -105,18 +151,6 @@ public class GameManager : MonoBehaviour
 
         print(menuMusicLoop.isPlaying);
     }
-
-    private void SpawnPlayers()
-    {
-        if (playerPrefab == null)
-            return;
-
-        Player _playerInstance = Instantiate(playerPrefab, playerHolder).GetComponent<Player>();
-
-        BodyController.AddPlayerToBodyControllerEvent.Invoke(_playerInstance);
-        players.Add(_playerInstance);
-    }
-
     private void DeletePlayers()
     {
         if (players.Count <= 0)
@@ -131,7 +165,19 @@ public class GameManager : MonoBehaviour
 
     private void CheckForGameSpeed()
     {
-        gameSpeed.Value = Mathf.Clamp(gameSpeed.Value + gameSpeedIncrease, 1, maxGameSpeed);
-        print(gameSpeed.Value);
+        gameSpeed = Mathf.Clamp(gameSpeed - gameSpeedDecrease, minGameSpeed, startGameSpeed);
     }
+
+    private IEnumerator SpawnPlayers()
+    {
+        if (playerPrefab == null)
+            yield return null;
+
+        print("Spawniing");
+        Player _playerInstance = Instantiate(playerPrefab, playerHolder).GetComponent<Player>();
+
+        BodyController.AddPlayerToBodyControllerEvent.Invoke(_playerInstance);
+        players.Add(_playerInstance);
+    }
+
 }
