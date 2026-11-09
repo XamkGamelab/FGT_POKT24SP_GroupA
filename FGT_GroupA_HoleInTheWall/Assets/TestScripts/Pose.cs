@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
+/*
     public enum BodyPartShape
     {
         Sphere,
@@ -37,4 +38,4 @@ using System;
         [Tooltip("Maker sure bodyparts overlap")]
         public List<BodyPart> bodyParts = new();
     }
-
+*/

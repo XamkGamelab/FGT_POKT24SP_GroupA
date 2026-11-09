@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc614f160255204894179ef333a5534, type: 3}
+  m_Name: X-Pose
+  m_EditorClassIdentifier: Assembly-CSharp::Pose2
+  poseName: X-Pose
+  overallScale: 1
+  bodyParts:
+  - partName: Head
+    shape: 0
+    localPosition: {x: 0, y: 1, z: 0}
+    localRotation: {x: 0, y: 0, z: 0}
+    size: {x: 0.3, y: 0.5, z: 0.5}
+    allowBottomOverflow: 0
+  - partName: Torso
+    shape: 1
+    localPosition: {x: 0, y: 0.35, z: 0}
+    localRotation: {x: 0, y: 0, z: 0}
+    size: {x: 0.55, y: 1.25, z: 0.45}
+    allowBottomOverflow: 0
+  - partName: LeftArm
+    shape: 1
+    localPosition: {x: -0.48, y: 0.8, z: 0}
+    localRotation: {x: 0, y: 0, z: 45}
+    size: {x: 0.25, y: 1.05, z: 0.3}
+    allowBottomOverflow: 0
+  - partName: RightArm
+    shape: 1
+    localPosition: {x: 0.48, y: 0.8, z: 0}
+    localRotation: {x: 0, y: 0, z: -45}
+    size: {x: 0.25, y: 1.05, z: 0.3}
+    allowBottomOverflow: 0
+  - partName: LeftLeg
+    shape: 1
+    localPosition: {x: -0.35, y: -0.6, z: 0}
+    localRotation: {x: 0, y: 0, z: 130}
+    size: {x: 0.3, y: 1.1, z: 0.35}
+    allowBottomOverflow: 0
+  - partName: RightLeg
+    shape: 1
+    localPosition: {x: 0.35, y: -0.8, z: 0}
+    localRotation: {x: 0, y: 0, z: -130}
+    size: {x: 0.3, y: 1.1, z: 0.35}
+    allowBottomOverflow: 0
