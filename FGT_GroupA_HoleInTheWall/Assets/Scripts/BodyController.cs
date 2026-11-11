@@ -2,6 +2,7 @@
 using Mediapipe.Unity.Sample.PoseLandmarkDetection;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -28,8 +29,8 @@ public class BodyController : MonoBehaviour
 
     [Header("References")]
 
-    [SerializeField] private Player player;
-
+    private Player player => GetComponent<Player>();
+    private int bodyID = 0;
 
     // ============================================================
     // BONE TRACKING
@@ -152,13 +153,8 @@ public class BodyController : MonoBehaviour
     // MEDIAPIPE DATA
     // ============================================================
 
-    private readonly object poseLock = new object();
-
-    private List<Vector3> pendingLandmarks;
-
-    private bool poseReady = false;
-
     private List<Vector3> currentLandmarks = new List<Vector3>();
+    public List<Vector3> CurrentLandmarks => currentLandmarks;
 
 
     // ============================================================
@@ -175,22 +171,8 @@ public class BodyController : MonoBehaviour
 
     private bool calibrated = false;
 
-    public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
-
-    public static BodyController Instance = null;
-
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(this);
-
-        AddPlayerToBodyControllerEvent.AddListener((_player) =>
-        {
-            player = _player;
-        });
-
         Player.OnPlayerDeath += (() =>
         {
             enableRootMovement = false;
@@ -527,144 +509,19 @@ public class BodyController : MonoBehaviour
     // ENABLE
     // ============================================================
 
-    private void OnEnable()
-    {
-        StartCoroutine(WaitForRunner());
-    }
-
-
-    // ============================================================
-    // WAIT FOR MEDIAPIPE
-    // ============================================================
-
-    private IEnumerator WaitForRunner()
-    {
-        while (
-            PoseLandmarkerRunner.Instance == null
-        )
-        {
-            yield return null;
-        }
-
-
-        PoseLandmarkerRunner.Instance.OnResult +=
-            OnPoseResult;
-
-
-        Debug.Log(
-            "[BodyController] Connected to PoseLandmarkerRunner."
-        );
-    }
-
-
-    // ============================================================
-    // DISABLE
-    // ============================================================
-
-    private void OnDisable()
-    {
-        if (
-            PoseLandmarkerRunner.Instance != null
-        )
-        {
-            PoseLandmarkerRunner.Instance.OnResult -=
-                OnPoseResult;
-        }
-    }
-
-
-    // ============================================================
-    // MEDIA PIPE RESULT
-    // ============================================================
-
-    private void OnPoseResult(PoseLandmarkerResult result)
-    {
-        if (
-            result.poseLandmarks == null ||
-            result.poseLandmarks.Count == 0
-        )
-        {
-            return;
-        }
-
-
-        var raw = result.poseLandmarks[0].landmarks;
-
-
-        if (
-            raw == null ||
-            raw.Count < 33
-        )
-        {
-            return;
-        }
-
-
-        List<Vector3> mapped = new List<Vector3>(raw.Count);
-
-
-        foreach (var lm in raw)
-        {
-            /*
-             * Convert MediaPipe image coordinates
-             * to our tracking coordinate system.
-             *
-             * X:
-             * left/right
-             *
-             * Y:
-             * bottom/top
-             *
-             * Z:
-             * depth
-             */
-
-            mapped.Add(
-                new Vector3(
-                    mirrorMovement
-                        ? 1f - lm.x
-                        : lm.x,
-
-                    1f - lm.y,
-
-                    -lm.z
-                )
-            );
-        }
-
-
-        lock (poseLock)
-        {
-            pendingLandmarks = mapped;
-
-            poseReady = true;
-        }
-    }
-
+  
 
     // ============================================================
     // UPDATE
     // ============================================================
 
-    private void Update()
+    public void UpdateLandmarks(List<Vector3> _newLandmarks)
     {
         // -----------------------------
         // Get newest MediaPipe pose
         // -----------------------------
 
-        lock (poseLock)
-        {
-            if (!poseReady)
-            {
-                return;
-            }
-
-
-            currentLandmarks = pendingLandmarks;
-
-
-            poseReady = false;
-        }
+        currentLandmarks = _newLandmarks;
 
 
         if (
@@ -1245,8 +1102,7 @@ public class BodyController : MonoBehaviour
         Quaternion targetRotation = delta * bindRotation;
 
         // Smooth bone rotation at a constant angular speed.
-        boneTransform.localRotation = Quaternion.RotateTowards(boneTransform.localRotation, targetRotation, boneRotationSpeed * Time.deltaTime
-        );
+        boneTransform.localRotation = Quaternion.RotateTowards(boneTransform.localRotation, targetRotation, boneRotationSpeed * Time.deltaTime);
     }
 
 
