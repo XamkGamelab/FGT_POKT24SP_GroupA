@@ -42,9 +42,6 @@ public class BodyController : MonoBehaviour
     public float boneRotationSpeed = .1f;
     public float boneRotationDeadZone = 1f;
 
-    [Tooltip("Mirror the horizontal MediaPipe movement.")]
-    public bool mirrorMovement = true;
-
     [Range(-1.0f, 1.0f)]
     public float headOffset = 0f;
 
@@ -496,11 +493,9 @@ public class BodyController : MonoBehaviour
 
             Transform boneParent = tA.parent;
 
-            bindDirections[pair.A] =
-                boneParent.InverseTransformDirection(direction);
+            bindDirections[pair.A] = boneParent.InverseTransformDirection(direction);
 
-            bindRotations[pair.A] =
-                tA.localRotation;
+            bindRotations[pair.A] = tA.localRotation;
         }
     }
 

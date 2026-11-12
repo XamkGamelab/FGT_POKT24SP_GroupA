@@ -26,7 +26,7 @@ namespace Mediapipe.Unity.Sample.UI
 
     private bool _isChanged;
 
-        private void Start()
+    private void Start()
     {
       InitializeContents();
     }

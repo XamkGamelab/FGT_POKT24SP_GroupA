@@ -24,6 +24,8 @@ public enum HumanTrackingPoint
 
 public class PoseRouter : SingletonMono<PoseRouter>
 {
+    [Tooltip("Mirror the horizontal MediaPipe movement.")]
+    [SerializeField] private bool mirrorMovement = true;
     private readonly object poseLock = new object();
 
     private List<Vector3> pendingLandmarks;
@@ -131,23 +133,13 @@ public class PoseRouter : SingletonMono<PoseRouter>
              * depth
              */
 
-            mapped.Add(new Vector3( 1f - lm.x, 1f - lm.y, -lm.z));
+            mapped.Add(new Vector3(mirrorMovement ? 1f - lm.x : lm.x, 1f - lm.y, -lm.z));
         }
 
 
         lock (poseLock)
         {
             pendingLandmarks = mapped;
-
-            foreach (HumanTrackingPoint trackingPoint in System.Enum.GetValues(typeof(HumanTrackingPoint)))
-            {
-                Vector3 landmark = mapped[(int)trackingPoint];
-
-                if (!trackingPoints.TryGetValue(trackingPoint, out Vector3 currentLandmark) || currentLandmark != landmark)
-                {
-                    trackingPoints[trackingPoint] = landmark;
-                }
-            }
 
             poseReady = true;
         }
@@ -163,11 +155,18 @@ public class PoseRouter : SingletonMono<PoseRouter>
 
     public Dictionary<HumanTrackingPoint, Vector3> GetTrackingPoints()
     {
-        Dictionary<HumanTrackingPoint, Vector3> trackingPoints = GetTrackingPoints();
-        Vector3 headLandmark = trackingPoints[HumanTrackingPoint.Head];
-
         lock (poseLock)
         {
+            foreach (HumanTrackingPoint _trackingPoint in System.Enum.GetValues(typeof(HumanTrackingPoint)))
+            {
+                Vector3 _landmark = pendingLandmarks[(int)_trackingPoint];
+
+                if (!trackingPoints.TryGetValue(_trackingPoint, out Vector3 _currentLandmark) || _currentLandmark != _landmark)
+                {
+                    trackingPoints[_trackingPoint] = _landmark;
+                }
+            }
+
             return trackingPoints;
         }
     }

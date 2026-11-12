@@ -101,8 +101,8 @@ MonoBehaviour:
   movementScale: 15
   depthMovementScale: 1
   verticalMovementScale: 10
-  rootMovementTime: 0.25
-  movementDeadzone: 0.1
+  rootMovementTime: 0.1
+  movementDeadzone: 0.05
   enableRootRotation: 1
   rootRotationSpeed: 180
   rotationMultiplier: 1
