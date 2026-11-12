@@ -521,36 +521,10 @@ public class BodyController : MonoBehaviour
         // Get newest MediaPipe pose
         // -----------------------------
 
-        currentLandmarks = _newLandmarks;
-
-
-        if (
-            currentLandmarks == null ||
-            currentLandmarks.Count < 33
-        )
-        {
+        if (_newLandmarks == null || _newLandmarks.Count < 33)
             return;
-        }
 
-
-        // -----------------------------
-        // Auto calibration
-        // -----------------------------
-
-        //if (
-        //    !calibrated &&
-        //    calibrateAutomatically
-        //)
-        //{
-        //    StartCoroutine(Calibrate());
-        //}
-
-
-        // -----------------------------
-        // Move X Bot
-        // -----------------------------
-
-
+        currentLandmarks = _newLandmarks;
     }
 
     private void LateUpdate()

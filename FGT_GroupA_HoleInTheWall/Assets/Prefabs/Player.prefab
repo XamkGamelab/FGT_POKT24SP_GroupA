@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2359393147102215439}
   - component: {fileID: 1177836260652627840}
   - component: {fileID: 5029183725509967298}
+  - component: {fileID: 3089311987296021254}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -76,6 +77,40 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &3089311987296021254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 605760450605406556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5814a2941ac99a344beef5a9ccd9c35c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BodyController
+  boneRotationSpeed: 360
+  boneRotationDeadZone: 0.1
+  mirrorMovement: 1
+  headOffset: -0.25
+  enableArms: 1
+  enableLegs: 1
+  enableSpine: 1
+  enableHead: 1
+  enableRootMovement: 1
+  movementScale: 15
+  depthMovementScale: 1
+  verticalMovementScale: 10
+  rootMovementTime: 0.25
+  movementDeadzone: 0.1
+  enableRootRotation: 1
+  rootRotationSpeed: 180
+  rotationMultiplier: 1
+  rootRotationDeadzone: 2
+  calibrateAutomatically: 1
+  calibrationDelay: 1
+  drawGizmos: 1
+  gizmoScale: 5
 --- !u!1001 &1070293121925796908
 PrefabInstance:
   m_ObjectHideFlags: 0

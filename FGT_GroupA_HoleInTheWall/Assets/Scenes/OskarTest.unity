@@ -477,7 +477,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 634631558}
-  - component: {fileID: 634631557}
   - component: {fileID: 634631559}
   m_Layer: 0
   m_Name: CameraManager
@@ -486,41 +485,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &634631557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 634631556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5814a2941ac99a344beef5a9ccd9c35c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BodyController
-  player: {fileID: 0}
-  boneRotationSpeed: 360
-  boneRotationDeadZone: 0.1
-  mirrorMovement: 1
-  headOffset: -0.25
-  enableArms: 1
-  enableLegs: 1
-  enableSpine: 1
-  enableHead: 1
-  enableRootMovement: 1
-  movementScale: 15
-  depthMovementScale: 1
-  verticalMovementScale: 10
-  rootMovementTime: 0.25
-  movementDeadzone: 0.1
-  enableRootRotation: 1
-  rootRotationSpeed: 180
-  rotationMultiplier: 1
-  rootRotationDeadzone: 2
-  calibrateAutomatically: 1
-  calibrationDelay: 1
-  drawGizmos: 1
-  gizmoScale: 5
 --- !u!4 &634631558
 Transform:
   m_ObjectHideFlags: 0
@@ -1151,7 +1115,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1977501759
 Transform:
   m_ObjectHideFlags: 0
