@@ -2,6 +2,7 @@
 using Mediapipe.Unity.Sample.PoseLandmarkDetection;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -28,11 +29,8 @@ public class BodyController : MonoBehaviour
 
     [Header("References")]
 
-    [SerializeField] private Player player;
-
-    [Tooltip("Main Camera used for camera-relative movement.")]
-    public Camera trackingCamera;
-
+    private Player player => GetComponent<Player>();
+    private int bodyID = 0;
 
     // ============================================================
     // BONE TRACKING
@@ -40,10 +38,9 @@ public class BodyController : MonoBehaviour
 
     [Header("Bone Tracking")]
 
-    public float smoothSpeed = 10f;
-
-    [Tooltip("Mirror the horizontal MediaPipe movement.")]
-    public bool mirrorMovement = true;
+    [Tooltip("Speed of bone rotation in degrees/second.")]
+    public float boneRotationSpeed = .1f;
+    public float boneRotationDeadZone = 1f;
 
     [Range(-1.0f, 1.0f)]
     public float headOffset = 0f;
@@ -79,7 +76,7 @@ public class BodyController : MonoBehaviour
     [Tooltip("Vertical movement multiplier.")]
     public float verticalMovementScale = 0.5f;
 
-    [Tooltip("Time that whole-body movement takes.")]
+    [Tooltip("Speed that whole-body movement takes in m/s.")]
     public float rootMovementTime = .25f;
 
     [Tooltip("Ignore tiny movements caused by tracking noise.")]
@@ -95,14 +92,14 @@ public class BodyController : MonoBehaviour
     [Tooltip("Rotate X Bot when you turn your body.")]
     public bool enableRootRotation = true;
 
-    [Tooltip("Smoothness of whole-body rotation.")]
-    public float rootRotationSmooth = 8f;
+    [Tooltip("rootRotation speed in degrees/second.")]
+    public float rootRotationSpeed= 180f;
 
     [Tooltip("Rotation multiplier.")]
     public float rotationMultiplier = 1f;
 
     [Tooltip("Ignore very small body rotations.")]
-    public float rotationDeadzone = 2f;
+    public float rootRotationDeadzone = 2f;
 
 
     // ============================================================
@@ -116,6 +113,8 @@ public class BodyController : MonoBehaviour
 
     [Tooltip("Seconds to wait before automatic calibration.")]
     public float calibrationDelay = 1f;
+
+    private float cameraAreaScale = 1f;
 
 
     // ============================================================
@@ -143,18 +142,16 @@ public class BodyController : MonoBehaviour
         new Dictionary<HumanBodyBones, Vector3>();
 
 
+    private Dictionary<HumanBodyBones, Vector3> previousDirections =
+        new Dictionary<HumanBodyBones, Vector3>();
+
+
     // ============================================================
     // MEDIAPIPE DATA
     // ============================================================
 
-    private readonly object poseLock = new object();
-
-    private List<Vector3> pendingLandmarks;
-
-    private bool poseReady = false;
-
-    private List<Vector3> currentLandmarks =
-        new List<Vector3>();
+    private List<Vector3> currentLandmarks = new List<Vector3>();
+    public List<Vector3> CurrentLandmarks => currentLandmarks;
 
 
     // ============================================================
@@ -171,22 +168,8 @@ public class BodyController : MonoBehaviour
 
     private bool calibrated = false;
 
-    public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
-
-    public static BodyController Instance = null;
-
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(this);
-
-        AddPlayerToBodyControllerEvent.AddListener((_player) =>
-        {
-            player = _player;
-        });
-
         Player.OnPlayerDeath += (() =>
         {
             enableRootMovement = false;
@@ -228,24 +211,6 @@ public class BodyController : MonoBehaviour
             );
 
             yield return null;
-        }
-
-
-        // -----------------------------
-        // Camera
-        // -----------------------------
-
-        if (trackingCamera == null)
-        {
-            trackingCamera = Camera.main;
-
-            if (trackingCamera == null)
-            {
-                Debug.LogWarning(
-                    "[BodyController] Tracking Camera not assigned and " +
-                    "Camera.main could not be found."
-                );
-            }
         }
 
 
@@ -526,11 +491,11 @@ public class BodyController : MonoBehaviour
             }
 
 
-            bindDirections[pair.A] =
-                direction;
+            Transform boneParent = tA.parent;
 
-            bindRotations[pair.A] =
-                tA.rotation;
+            bindDirections[pair.A] = boneParent.InverseTransformDirection(direction);
+
+            bindRotations[pair.A] = tA.localRotation;
         }
     }
 
@@ -539,183 +504,30 @@ public class BodyController : MonoBehaviour
     // ENABLE
     // ============================================================
 
-    private void OnEnable()
-    {
-        StartCoroutine(WaitForRunner());
-    }
-
-
-    // ============================================================
-    // WAIT FOR MEDIAPIPE
-    // ============================================================
-
-    private IEnumerator WaitForRunner()
-    {
-        while (
-            PoseLandmarkerRunner.Instance == null
-        )
-        {
-            yield return null;
-        }
-
-
-        PoseLandmarkerRunner.Instance.OnResult +=
-            OnPoseResult;
-
-
-        Debug.Log(
-            "[BodyController] Connected to PoseLandmarkerRunner."
-        );
-    }
-
-
-    // ============================================================
-    // DISABLE
-    // ============================================================
-
-    private void OnDisable()
-    {
-        if (
-            PoseLandmarkerRunner.Instance != null
-        )
-        {
-            PoseLandmarkerRunner.Instance.OnResult -=
-                OnPoseResult;
-        }
-    }
-
-
-    // ============================================================
-    // MEDIA PIPE RESULT
-    // ============================================================
-
-    private void OnPoseResult(
-        PoseLandmarkerResult result)
-    {
-        if (
-            result.poseLandmarks == null ||
-            result.poseLandmarks.Count == 0
-        )
-        {
-            return;
-        }
-
-
-        var raw =
-            result.poseLandmarks[0].landmarks;
-
-
-        if (
-            raw == null ||
-            raw.Count < 33
-        )
-        {
-            return;
-        }
-
-
-        List<Vector3> mapped =
-            new List<Vector3>(raw.Count);
-
-
-        foreach (var lm in raw)
-        {
-            /*
-             * Convert MediaPipe image coordinates
-             * to our tracking coordinate system.
-             *
-             * X:
-             * left/right
-             *
-             * Y:
-             * bottom/top
-             *
-             * Z:
-             * depth
-             */
-
-            mapped.Add(
-                new Vector3(
-                    mirrorMovement
-                        ? 1f - lm.x
-                        : lm.x,
-
-                    1f - lm.y,
-
-                    -lm.z
-                )
-            );
-        }
-
-
-        lock (poseLock)
-        {
-            pendingLandmarks =
-                mapped;
-
-            poseReady =
-                true;
-        }
-    }
-
+  
 
     // ============================================================
     // UPDATE
     // ============================================================
 
-    private void Update()
+    public void UpdateLandmarks(List<Vector3> _newLandmarks)
     {
         // -----------------------------
         // Get newest MediaPipe pose
         // -----------------------------
 
-        lock (poseLock)
-        {
-            if (!poseReady)
-            {
-                return;
-            }
-
-
-            currentLandmarks =
-                pendingLandmarks;
-
-
-            poseReady =
-                false;
-        }
-
-
-        if (
-            currentLandmarks == null ||
-            currentLandmarks.Count < 33
-        )
-        {
+        if (_newLandmarks == null || _newLandmarks.Count < 33)
             return;
-        }
 
+        currentLandmarks = _newLandmarks;
+    }
 
-        // -----------------------------
-        // Auto calibration
-        // -----------------------------
+    private void LateUpdate()
+    {
+        if (!calibrated)
+            return;
 
-        if (
-            !calibrated &&
-            calibrateAutomatically
-        )
-        {
-            StartCoroutine(Calibrate());
-        }
-
-
-        // -----------------------------
-        // Move X Bot
-        // -----------------------------
-
-        if (
-            enableRootMovement &&
-            calibrated
-        )
+        if (enableRootMovement)
         {
             ApplyRootMovement();
         }
@@ -725,10 +537,7 @@ public class BodyController : MonoBehaviour
         // Rotate X Bot
         // -----------------------------
 
-        if (
-            enableRootRotation &&
-            calibrated
-        )
+        if (enableRootRotation)
         {
             ApplyRootRotation();
         }
@@ -747,6 +556,7 @@ public class BodyController : MonoBehaviour
     // ============================================================
 
     Coroutine moveCoroutine;
+
     private void ApplyRootMovement()
     {
         Vector3 currentHip =
@@ -759,8 +569,7 @@ public class BodyController : MonoBehaviour
          * the user is now.
          */
 
-        Vector3 movement =
-            currentHip - initialHipPosition;
+        Vector3 movement = currentHip - initialHipPosition;
 
 
         // -----------------------------
@@ -805,10 +614,7 @@ public class BodyController : MonoBehaviour
          */
 
 
-        Vector3 worldMovement =
-            ConvertTrackingMovementToWorld(
-                movement
-            );
+        Vector3 worldMovement = ConvertTrackingMovementToWorld(movement);
 
 
         // Apply individual scales
@@ -820,12 +626,16 @@ public class BodyController : MonoBehaviour
         worldMovement.y *= verticalMovementScale;
 
 
+        // Prevent X Bot from going below the initial position
+        if (worldMovement.y < initialRootPosition.y)
+        {
+            worldMovement.y = initialRootPosition.y;
+        }
         // Target X Bot position
 
-        Vector3 targetPosition =
-            initialRootPosition +
-            worldMovement;
+        Vector3 targetPosition = initialRootPosition + worldMovement * cameraAreaScale;
 
+        //player.modelRoot.position = Vector3.MoveTowards(player.modelRoot.position, targetPosition, Time.deltaTime * rootMovementSpeed);
 
         // Smooth movement
         if(moveCoroutine != null && targetPosition != Vector3.zero)
@@ -862,24 +672,8 @@ public class BodyController : MonoBehaviour
     // CAMERA RELATIVE MOVEMENT
     // ============================================================
 
-    private Vector3 ConvertTrackingMovementToWorld(
-        Vector3 movement)
+    private Vector3 ConvertTrackingMovementToWorld(Vector3 movement)
     {
-        /*
-         * If there is no camera,
-         * use normal Unity axes.
-         */
-
-        if (trackingCamera == null)
-        {
-            return new Vector3(
-                movement.x,
-                movement.y,
-                -movement.z
-            );
-        }
-
-
         /*
          * Camera right.
          *
@@ -887,8 +681,7 @@ public class BodyController : MonoBehaviour
          * the right side of the camera.
          */
 
-        Vector3 cameraRight =
-            trackingCamera.transform.right;
+        Vector3 cameraRight = Vector3.right;
 
 
         /*
@@ -900,8 +693,7 @@ public class BodyController : MonoBehaviour
          * Therefore we use NEGATIVE camera.forward.
          */
 
-        Vector3 towardCamera =
-            -trackingCamera.transform.forward;
+        Vector3 towardCamera = -Vector3.forward;
 
 
         /*
@@ -941,17 +733,12 @@ public class BodyController : MonoBehaviour
     // ============================================================
     // ROOT ROTATION
     // ============================================================
-
     private void ApplyRootRotation()
     {
-        Vector3 currentForward =
-            CalculateBodyForwardWorld();
+        Vector3 currentForward = CalculateBodyForwardWorld();
 
 
-        if (
-            currentForward.sqrMagnitude <
-            0.0001f
-        )
+        if (currentForward.sqrMagnitude < 0.0001f)
         {
             return;
         }
@@ -962,64 +749,37 @@ public class BodyController : MonoBehaviour
         currentForward.Normalize();
 
 
-        Vector3 startingForward =
-            initialBodyForward;
+        Vector3 startingForward = initialBodyForward;
 
 
         startingForward.y = 0f;
 
         startingForward.Normalize();
-
-
         /*
          * Calculate how many degrees
          * the user turned.
          */
 
-        float angle =
-            Vector3.SignedAngle(
-                startingForward,
-                currentForward,
-                Vector3.up
-            );
+        float angle = Vector3.SignedAngle(startingForward, currentForward, Vector3.up);
 
 
         /*
          * Ignore tiny tracking noise.
          */
 
-        if (
-            Mathf.Abs(angle) <
-            rotationDeadzone
-        )
+        if (Mathf.Abs(angle) < rootRotationDeadzone)
         {
             angle = 0f;
         }
 
 
-        angle *=
-            rotationMultiplier;
+        angle *= rotationMultiplier;
 
+        //Quaternion.RotateTowards(initialRootRotation, Quaternion.Euler(0f, angle, 0f), rootRotationTime);
+        Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.up) * initialRootRotation;
 
-        Quaternion targetRotation =
-            initialRootRotation *
-            Quaternion.Euler(
-                0f,
-                angle,
-                0f
-            );
-
-
-        player.modelRoot.rotation =
-            Quaternion.Slerp(
-                player.modelRoot.rotation,
-                targetRotation,
-                Time.deltaTime *
-                rootRotationSmooth
-            );
+        player.modelRoot.rotation = Quaternion.RotateTowards(player.modelRoot.rotation,targetRotation, Time.deltaTime * rootRotationSpeed);
     }
-
-
     // ============================================================
     // CALCULATE BODY FORWARD
     // ============================================================
@@ -1030,43 +790,31 @@ public class BodyController : MonoBehaviour
          * Get shoulders.
          */
 
-        Vector3 leftShoulder =
-            Lm(11);
+        Vector3 leftShoulder = Lm(11);
 
-        Vector3 rightShoulder =
-            Lm(12);
+        Vector3 rightShoulder = Lm(12);
 
 
         /*
          * Get hips.
          */
 
-        Vector3 leftHip =
-            Lm(23);
+        Vector3 leftHip = Lm(23);
 
-        Vector3 rightHip =
-            Lm(24);
+        Vector3 rightHip = Lm(24);
 
 
         /*
          * Body right direction.
          */
 
-        Vector3 shoulderRight =
-            rightShoulder -
-            leftShoulder;
+        Vector3 shoulderRight = rightShoulder - leftShoulder;
 
 
-        Vector3 hipRight =
-            rightHip -
-            leftHip;
+        Vector3 hipRight = rightHip - leftHip;
 
 
-        Vector3 bodyRight =
-            (
-                shoulderRight +
-                hipRight
-            ) * 0.5f;
+        Vector3 bodyRight = (shoulderRight + hipRight) * 0.5f;
 
 
         bodyRight.Normalize();
@@ -1076,36 +824,20 @@ public class BodyController : MonoBehaviour
          * Body up direction.
          */
 
-        Vector3 hipCenter =
-            (
-                leftHip +
-                rightHip
-            ) * 0.5f;
+        Vector3 hipCenter = (leftHip + rightHip) * 0.5f;
 
 
-        Vector3 shoulderCenter =
-            (
-                leftShoulder +
-                rightShoulder
-            ) * 0.5f;
+        Vector3 shoulderCenter = (leftShoulder + rightShoulder) * 0.5f;
 
 
-        Vector3 bodyUp =
-            (
-                shoulderCenter -
-                hipCenter
-            ).normalized;
+        Vector3 bodyUp = (shoulderCenter - hipCenter).normalized;
 
 
         /*
          * Calculate forward.
          */
 
-        Vector3 trackingForward =
-            Vector3.Cross(
-                bodyRight,
-                bodyUp
-            ).normalized;
+        Vector3 trackingForward = Vector3.Cross(bodyRight, bodyUp).normalized;
 
 
         /*
@@ -1113,56 +845,13 @@ public class BodyController : MonoBehaviour
          * to Unity world coordinates.
          */
 
-        Vector3 worldForward;
-
-
-        if (trackingCamera != null)
-        {
-            Vector3 cameraRight =
-                trackingCamera.transform.right;
-
-            Vector3 cameraUp =
-                trackingCamera.transform.up;
-
-            /*
-             * Our tracking Z is opposite the
-             * camera's normal forward direction.
-             */
-
-            Vector3 cameraDepth =
-                -trackingCamera.transform.forward;
-
-
-            worldForward =
-                cameraRight *
-                trackingForward.x;
-
-            worldForward +=
-                cameraUp *
-                trackingForward.y;
-
-            worldForward +=
-                cameraDepth *
-                trackingForward.z;
-        }
-        else
-        {
-            worldForward =
-                new Vector3(
-                    trackingForward.x,
-                    trackingForward.y,
-                    -trackingForward.z
-                );
-        }
+        Vector3 worldForward = TrackingDirectionToWorld(trackingForward);
 
 
         worldForward.y = 0f;
 
 
-        if (
-            worldForward.sqrMagnitude <
-            0.0001f
-        )
+        if ( worldForward.sqrMagnitude < 0.0001f)
         {
             return Vector3.forward;
         }
@@ -1190,21 +879,13 @@ public class BodyController : MonoBehaviour
         }
 
 
-        Vector3 midHip =
-            Mid(23, 24);
+        Vector3 midHip = Mid(23, 24);
 
 
-        Vector3 midShoulder =
-            Mid(11, 12);
+        Vector3 midShoulder = Mid(11, 12);
 
 
-        Vector3 midHead =
-            Lm(0) +
-            new Vector3(
-                0f,
-                0f,
-                headOffset
-            );
+        Vector3 midHead = Lm(0) + new Vector3(0f, 0f, headOffset);
 
 
         // ========================================================
@@ -1213,18 +894,10 @@ public class BodyController : MonoBehaviour
 
         if (enableSpine)
         {
-            RotateBone(
-                HumanBodyBones.Hips,
-                midHip,
-                midShoulder
-            );
+            //RotateBone(HumanBodyBones.Hips, midHip, midShoulder);
 
 
-            RotateBone(
-                HumanBodyBones.Spine,
-                midHip,
-                midShoulder
-            );
+            RotateBone(HumanBodyBones.Spine, midHip, midShoulder);
         }
 
 
@@ -1320,98 +993,85 @@ public class BodyController : MonoBehaviour
 
         if (enableHead)
         {
-            RotateBone(
-                HumanBodyBones.Chest,
-                midShoulder,
-                midHead
-            );
+            RotateBone(HumanBodyBones.Chest, midShoulder, midHead);
         }
     }
+    private Vector3 TrackingDirectionToWorld(Vector3 direction)
+    {
 
+        //Vector3 worldDirection =
+        //    Vector3.right * direction.x +
+        //    Vector3.up * direction.y +
+        //    Vector3.forward * direction.z;
+
+        return new Vector3(direction.x, direction.y, direction.z).normalized;
+    }
 
     // ============================================================
     // ROTATE BONE
     // ============================================================
 
-    private void RotateBone(
-        HumanBodyBones bone,
-        Vector3 from,
-        Vector3 to)
+
+    private void RotateBone(HumanBodyBones bone, Vector3 from, Vector3 to)
     {
-        if (
-            !boneMap.TryGetValue(
-                bone,
-                out Transform boneTransform)
-        )
+
+        if (!boneMap.TryGetValue(bone, out Transform boneTransform))
         {
             return;
         }
 
 
-        if (
-            !bindDirections.TryGetValue(
-                bone,
-                out Vector3 bindDirection)
-        )
+        if (!bindDirections.TryGetValue(bone, out Vector3 bindDirection))
         {
             return;
         }
 
 
-        if (
-            !bindRotations.TryGetValue(
-                bone,
-                out Quaternion bindRotation)
-        )
+        if (!bindRotations.TryGetValue(bone, out Quaternion bindRotation))
         {
             return;
         }
 
 
-        Vector3 targetDirection =
-            (
-                to -
-                from
-            ).normalized;
+        Vector3 targetDirection = (to - from).normalized;
 
 
-        if (
-            targetDirection == Vector3.zero
-        )
-        {
+        if ( targetDirection.sqrMagnitude < 0.0001f)
             return;
+
+        if(boneTransform.parent == null)
+            return;
+
+        // Convert tracking direction into world space.
+        Vector3 worldDirection = TrackingDirectionToWorld(targetDirection);
+
+        // Convert world direction into the bone parent's local space.
+        Vector3 localDirection = boneTransform.parent.InverseTransformDirection(worldDirection);
+
+        // Initialize previous direction.
+        if (!previousDirections.TryGetValue(bone, out Vector3 previousDirection))
+        {
+            previousDirections[bone] = localDirection;
+            previousDirection = localDirection;
         }
 
+        // Calculate change from the last accepted direction.
+        float deltaAngle = Vector3.Angle(previousDirection, localDirection);
 
-        /*
-         * Find the rotation from the
-         * T-pose direction to the
-         * detected direction.
-         */
+        // Ignore small tracking fluctuations.
+        if (deltaAngle < boneRotationDeadZone)
+            return;
 
-        Quaternion delta =
-            Quaternion.FromToRotation(
-                bindDirection,
-                targetDirection
-            );
+        // Accept the new direction.
+        previousDirections[bone] = localDirection;
 
+        // Calculate rotation relative to the original bind direction.
+        Quaternion delta = Quaternion.FromToRotation(bindDirection, localDirection);
 
-        Quaternion targetRotation =
-            delta *
-            bindRotation;
+        Quaternion targetRotation = delta * bindRotation;
 
-
-        /*
-         * Smoothly rotate the bone.
-         */
-
-        boneTransform.rotation =
-            Quaternion.Slerp(
-                boneTransform.rotation,
-                targetRotation,
-                Time.deltaTime *
-                smoothSpeed
-            );
+        // Smooth bone rotation at a constant angular speed.
+        boneTransform.localRotation = Quaternion.RotateTowards(boneTransform.localRotation, targetRotation, boneRotationSpeed * Time.deltaTime);
     }
 
 
@@ -1425,14 +1085,9 @@ public class BodyController : MonoBehaviour
     }
 
 
-    private Vector3 Mid(
-        int a,
-        int b)
+    private Vector3 Mid(int a, int b)
     {
-        return (
-            Lm(a) +
-            Lm(b)
-        ) * 0.5f;
+        return (Lm(a) + Lm(b)) * 0.5f;
     }
 
 
@@ -1504,24 +1159,46 @@ public class BodyController : MonoBehaviour
 
         if (calibrated)
         {
-            Vector3 forward =
-                CalculateBodyForwardWorld();
+            Vector3 forward = CalculateBodyForwardWorld();
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(Vector3.up, Vector3.up + forward * 2f);
 
 
-            Gizmos.color =
-                Color.green;
+            Vector3 startingForward = initialBodyForward;
 
 
-            Gizmos.DrawLine(
-                player.modelRoot != null
-                    ? player.modelRoot.position
-                    : transform.position,
+            startingForward.y = 0f;
 
-                (player.modelRoot != null
-                    ? player.modelRoot.position
-                    : transform.position)
-                + forward
-            );
+            startingForward.Normalize();
+            /*
+             * Calculate how many degrees
+             * the user turned.
+             */
+
+            float angle = Vector3.SignedAngle(startingForward, forward, Vector3.up);
+
+            forward.y = 0;
+            /*
+             * Ignore tiny tracking noise.
+             */
+
+            if (Mathf.Abs(angle) < boneRotationDeadZone)
+            {
+                angle = 0f;
+            }
+
+
+            angle *= rotationMultiplier;
+
+            //Quaternion.RotateTowards(initialRootRotation, Quaternion.Euler(0f, angle, 0f), rootRotationTime);
+            Quaternion targetRotation = initialRootRotation * Quaternion.Euler(0f, angle, 0f);
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(Vector3.up, Vector3.up + (targetRotation * Vector3.forward).normalized*3f);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(Vector3.up, Vector3.up + player.modelRoot.forward);
         }
     }
 }

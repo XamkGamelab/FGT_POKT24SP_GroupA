@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
             curGameState = GameState.Paused;
 
             SpawnPlayers().ToObservable()
-                .SelectMany(BodyController.Instance.HandleStartCalibrationCoroutine())
+                .SelectMany(PoseRouter.Instance.HandleBodyCalibration())
                 .Subscribe(
                 onSuccess =>
                 {
@@ -176,7 +176,7 @@ public class GameManager : MonoBehaviour
         print("Spawniing");
         Player _playerInstance = Instantiate(playerPrefab, playerHolder).GetComponent<Player>();
 
-        BodyController.AddPlayerToBodyControllerEvent.Invoke(_playerInstance);
+        PoseRouter.AddPlayerToBodyControllerEvent.Invoke(_playerInstance);
         players.Add(_playerInstance);
     }
 
