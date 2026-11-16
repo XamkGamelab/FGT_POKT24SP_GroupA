@@ -1,0 +1,12 @@
+UI Assets sizes: 
+-800x800 (Health)
+-1920x1080 (Score)
+
+Colors: 
+-670000 (dark red)
+-c40000 (bright red)
+-dadada (grey)
+-676767 (dark grey)
+-585858 (darker grey for the score and multiplier)
+
+Font: Muro

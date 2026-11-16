@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "906253443537",
+    "project_id": "hitwall-650af",
+    "storage_bucket": "hitwall-650af.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906253443537:android:babb8a46035c37ea0040f0",
+        "android_client_info": {
+          "package_name": "com.ShapeForge.HITWall"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1px7OyXrllLbfj7JwQL__kW-9KgZfdUA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
