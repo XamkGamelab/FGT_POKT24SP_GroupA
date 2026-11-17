@@ -93,7 +93,8 @@ public class GameManager : MonoBehaviour
         OnObstaclePassEvent.AddListener(CheckForGameSpeed);
 
         SceneManager.LoadScene(1, LoadSceneMode.Additive);
-        SceneManager.LoadScene(2, LoadSceneMode.Additive);
+        //SceneManager.LoadScene(2, LoadSceneMode.Additive);
+        SceneManager.LoadScene(3, LoadSceneMode.Additive);
     }
     // Start is called before the first frame update
     private void Start()
