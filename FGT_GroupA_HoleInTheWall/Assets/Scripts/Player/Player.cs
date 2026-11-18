@@ -92,6 +92,8 @@ public class Player : MonoBehaviour
     public void TakeDmg()
     {
         //OnObstacleHit(this);
+        if(hitCurWall)
+            return;
 
         health.Value--;
         health.Value = Math.Clamp(health.Value, 0, maxHealth);
