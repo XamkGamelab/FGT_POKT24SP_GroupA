@@ -91,7 +91,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BodyController
   boneRotationSpeed: 360
   boneRotationDeadZone: 0.1
-  mirrorMovement: 1
   headOffset: -0.25
   enableArms: 1
   enableLegs: 1
@@ -103,6 +102,8 @@ MonoBehaviour:
   verticalMovementScale: 10
   rootMovementTime: 0.1
   movementDeadzone: 0.05
+  leftPlayAreaX: -5
+  rightPlayAreaX: 5
   enableRootRotation: 1
   rootRotationSpeed: 180
   rotationMultiplier: 1

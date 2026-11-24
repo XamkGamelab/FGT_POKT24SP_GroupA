@@ -32,10 +32,15 @@ public class PoseRouter : SingletonMono<PoseRouter>
     private readonly Dictionary<HumanTrackingPoint, Vector3> trackingPoints = new Dictionary<HumanTrackingPoint, Vector3>();
 
     private bool poseReady = false;
+    private int poseVersion;
+    private float capturedHipX;
 
     BodyController bodyController;
     public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
 
+    [Header("Play Area Calibration")]
+    [SerializeField] private float calibrationStandTime = 1f;
+    [SerializeField] private float calibrationPositionThreshold = 0.02f;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -54,9 +59,92 @@ public class PoseRouter : SingletonMono<PoseRouter>
 
     public IEnumerator HandleBodyCalibration()
     {
+        Debug.Log("[PoseRouter] Waiting for the body controller to initialize.");
         yield return new WaitUntil(() => bodyController != null);
+
+        bodyController.calibrateAutomatically = false;
         yield return bodyController.HandleStartCalibrationCoroutine();
+
+        Debug.Log($"[PoseRouter] Move to the left edge of the play area and hold still for {calibrationStandTime:F1} seconds.");
+        // CanvasManager.ShowCanvas.Invoke("MoveLeft");
+        yield return CaptureStableHipX();
+        float leftX = capturedHipX;
+        Debug.Log($"[PoseRouter] Left position captured at tracking X={leftX:F3}.");
+
+        Debug.Log($"[PoseRouter] Move to the right edge of the play area and hold still for {calibrationStandTime:F1} seconds.");
+        // CanvasManager.ShowCanvas.Invoke("MoveRight");
+        yield return CaptureStableHipX();
+        float rightX = capturedHipX;
+        Debug.Log($"[PoseRouter] Right position captured at tracking X={rightX:F3}.");
+
+        if (bodyController.CalibratePlayArea(leftX, rightX))
+        {
+            Debug.Log("[PoseRouter] Play area calibration succeeded.");
+        }
+        else
+        {
+            Debug.LogError("[PoseRouter] Play area calibration failed.");
+        }
     }
+
+    private IEnumerator CaptureStableHipX()
+    {
+        float stablePosition = 0f;
+        float positionSum = 0f;
+        float stableTime = 0f;
+        int sampleCount = 0;
+        int lastPoseVersion = -1;
+        bool hasStablePosition = false;
+
+        while (!hasStablePosition || stableTime < calibrationStandTime)
+        {
+            float currentHipX;
+            int currentPoseVersion;
+            if (TryGetHipX(out currentHipX, out currentPoseVersion) && currentPoseVersion != lastPoseVersion)
+            {
+                if (!hasStablePosition || Mathf.Abs(currentHipX - stablePosition) > calibrationPositionThreshold)
+                {
+                    stablePosition = currentHipX;
+                    stableTime = 0f;
+                    positionSum = currentHipX;
+                    sampleCount = 1;
+                    hasStablePosition = true;
+                }
+                else
+                {
+                    stableTime += Time.deltaTime;
+                    positionSum += currentHipX;
+                    sampleCount++;
+                }
+
+                lastPoseVersion = currentPoseVersion;
+            }
+
+            yield return null;
+        }
+
+        capturedHipX = positionSum / sampleCount;
+    }
+
+    private bool TryGetHipX(out float hipX, out int currentPoseVersion)
+    {
+        lock (poseLock)
+        {
+            int leftHipIndex = (int)HumanTrackingPoint.LeftHip;
+            int rightHipIndex = (int)HumanTrackingPoint.RightHip;
+            if (pendingLandmarks == null || pendingLandmarks.Count <= rightHipIndex)
+            {
+                hipX = 0f;
+                currentPoseVersion = poseVersion;
+                return false;
+            }
+
+            hipX = (pendingLandmarks[leftHipIndex].x + pendingLandmarks[rightHipIndex].x) * 0.5f;
+            currentPoseVersion = poseVersion;
+            return true;
+        }
+    }
+
     // ============================================================
     // WAIT FOR MEDIAPIPE
     // ============================================================
@@ -140,6 +228,7 @@ public class PoseRouter : SingletonMono<PoseRouter>
         lock (poseLock)
         {
             pendingLandmarks = mapped;
+            poseVersion++;
 
             poseReady = true;
         }

@@ -513,6 +513,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   mirrorMovement: 1
+  calibrationStandTime: 1
+  calibrationPositionThreshold: 0.1
 --- !u!1 &669111439
 GameObject:
   m_ObjectHideFlags: 0
