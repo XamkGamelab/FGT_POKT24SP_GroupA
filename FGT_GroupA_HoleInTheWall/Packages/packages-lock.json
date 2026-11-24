@@ -9,6 +9,13 @@
         "com.unity.test-framework": "1.0.0"
       }
     },
+    "com.johannhotzel.manifoldcsg": {
+      "version": "https://github.com/JohannHotzel/manifold-csg-unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "bbfdab0f0ad028810826f532f21b3d51d38efd93"
+    },
     "com.junsk1games.canvasmanagement": {
       "version": "https://github.com/Junski1/CanvasManagement.git",
       "depth": 0,
