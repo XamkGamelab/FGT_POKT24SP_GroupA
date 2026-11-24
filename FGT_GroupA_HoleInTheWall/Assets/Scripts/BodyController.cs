@@ -82,6 +82,10 @@ public class BodyController : MonoBehaviour
     [Tooltip("Ignore tiny movements caused by tracking noise.")]
     public float movementDeadzone = 0.01f;
 
+    [Header("Play Area Bounds")]
+    [SerializeField] private float leftPlayAreaX = -5f;
+    [SerializeField] private float rightPlayAreaX = 5f;
+
 
     // ============================================================
     // ROOT ROTATION
@@ -115,6 +119,8 @@ public class BodyController : MonoBehaviour
     public float calibrationDelay = 1f;
 
     private float cameraAreaScale = 1f;
+    private float calibratedPlayAreaWidth;
+    private bool hasCalibratedPlayArea;
 
 
     // ============================================================
@@ -279,51 +285,65 @@ public class BodyController : MonoBehaviour
 
     private IEnumerator Calibrate()
     {
-        //Make this return Bool so that GameManager can get info if cannot calibrate => dont start game
+        CompleteCalibration(null);
+        yield return null;
+    }
 
-        if (currentLandmarks == null ||
-            currentLandmarks.Count < 33)
+    public bool CalibratePlayArea(float leftX, float rightX)
+    {
+        float playAreaWidth = Mathf.Abs(rightX - leftX);
+        float playAreaWorldWidth = Mathf.Abs(rightPlayAreaX - leftPlayAreaX);
+        if (playAreaWidth <= movementDeadzone || playAreaWorldWidth <= 0f)
+        {
+            Debug.LogError(
+                "[BodyController] Cannot calibrate play area. " +
+                "The measured tracking or world-space range is too small."
+            );
+            return false;
+        }
+
+        if (!CompleteCalibration((leftX + rightX) * 0.5f))
+        {
+            return false;
+        }
+
+        calibratedPlayAreaWidth = playAreaWidth;
+        cameraAreaScale = playAreaWorldWidth / playAreaWidth;
+        initialRootPosition.x = (leftPlayAreaX + rightPlayAreaX) * 0.5f;
+        hasCalibratedPlayArea = true;
+
+        Debug.Log(
+            $"[BodyController] Play area calibrated. Tracking width: {playAreaWidth:F3}, " +
+            $"world width: {playAreaWorldWidth:F3}, movement scale: {cameraAreaScale:F3}."
+        );
+        return true;
+    }
+
+    private bool CompleteCalibration(float? horizontalCenter)
+    {
+        if (currentLandmarks == null || currentLandmarks.Count < 33)
         {
             Debug.LogWarning(
                 "[BodyController] Cannot calibrate. " +
                 "No pose detected."
             );
-
-            yield return null;
+            return false;
         }
 
+        initialHipPosition = Mid(HumanTrackingPoint.LeftHip, HumanTrackingPoint.RightHip);
+        if (horizontalCenter.HasValue)
+        {
+            initialHipPosition.x = horizontalCenter.Value;
+        }
 
-        // Current hip position
-        initialHipPosition = Mid(23, 24);
-
-
-        //TODO
-        //Wait until player is center of the camera
-
-
-        // Current body facing direction
-        initialBodyForward =
-            CalculateBodyForwardWorld();
-
-
-        // Save X Bot position
-        initialRootPosition =
-            player.modelRoot.position;
-
-
-        // Save X Bot rotation
-        initialRootRotation =
-            player.modelRoot.rotation;
-
-
+        initialBodyForward = CalculateBodyForwardWorld();
+        initialRootPosition = player.modelRoot.position;
+        initialRootRotation = player.modelRoot.rotation;
         calibrated = true;
 
-
-        Debug.Log(
-            "[BodyController] Calibration complete."
-        );
+        Debug.Log("[BodyController] Calibration complete.");
+        return true;
     }
-
 
     // ============================================================
     // CACHE HUMANOID BONES
@@ -560,7 +580,7 @@ public class BodyController : MonoBehaviour
     private void ApplyRootMovement()
     {
         Vector3 currentHip =
-            Mid(23, 24);
+            Mid(HumanTrackingPoint.LeftHip, HumanTrackingPoint.RightHip);
 
 
         /*
@@ -614,12 +634,21 @@ public class BodyController : MonoBehaviour
          */
 
 
+        if (hasCalibratedPlayArea)
+        {
+            movement.x = Mathf.Clamp(
+                movement.x,
+                -calibratedPlayAreaWidth * 0.5f,
+                calibratedPlayAreaWidth * 0.5f
+            );
+        }
+
         Vector3 worldMovement = ConvertTrackingMovementToWorld(movement);
 
 
         // Apply individual scales
 
-        worldMovement.x *= movementScale;
+        worldMovement.x *= hasCalibratedPlayArea ? cameraAreaScale : movementScale;
 
         worldMovement.z *= depthMovementScale;
 
@@ -633,7 +662,7 @@ public class BodyController : MonoBehaviour
         }
         // Target X Bot position
 
-        Vector3 targetPosition = initialRootPosition + worldMovement * cameraAreaScale;
+        Vector3 targetPosition = initialRootPosition + worldMovement;
 
         //player.modelRoot.position = Vector3.MoveTowards(player.modelRoot.position, targetPosition, Time.deltaTime * rootMovementSpeed);
 
@@ -790,18 +819,18 @@ public class BodyController : MonoBehaviour
          * Get shoulders.
          */
 
-        Vector3 leftShoulder = Lm(11);
+        Vector3 leftShoulder = Lm(HumanTrackingPoint.LeftShoulder);
 
-        Vector3 rightShoulder = Lm(12);
+        Vector3 rightShoulder = Lm(HumanTrackingPoint.RightShoulder);
 
 
         /*
          * Get hips.
          */
 
-        Vector3 leftHip = Lm(23);
+        Vector3 leftHip = Lm(HumanTrackingPoint.LeftHip);
 
-        Vector3 rightHip = Lm(24);
+        Vector3 rightHip = Lm(HumanTrackingPoint.RightHip);
 
 
         /*
@@ -879,13 +908,13 @@ public class BodyController : MonoBehaviour
         }
 
 
-        Vector3 midHip = Mid(23, 24);
+        Vector3 midHip = Mid(HumanTrackingPoint.LeftHip, HumanTrackingPoint.RightHip);
 
 
-        Vector3 midShoulder = Mid(11, 12);
+        Vector3 midShoulder = Mid(HumanTrackingPoint.LeftShoulder, HumanTrackingPoint.RightShoulder);
 
 
-        Vector3 midHead = Lm(0) + new Vector3(0f, 0f, headOffset);
+        Vector3 midHead = Lm(HumanTrackingPoint.Head) + new Vector3(0f, 0f, headOffset);
 
 
         // ========================================================
@@ -911,8 +940,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.LeftUpperArm,
-                Lm(11),
-                Lm(13)
+                Lm(HumanTrackingPoint.LeftShoulder),
+                Lm(HumanTrackingPoint.LeftElbow)
             );
 
 
@@ -920,8 +949,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.LeftLowerArm,
-                Lm(13),
-                Lm(15)
+                Lm(HumanTrackingPoint.LeftElbow),
+                Lm(HumanTrackingPoint.LeftWrist)
             );
 
 
@@ -929,8 +958,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.RightUpperArm,
-                Lm(12),
-                Lm(14)
+                Lm(HumanTrackingPoint.RightShoulder),
+                Lm(HumanTrackingPoint.RightElbow)
             );
 
 
@@ -938,8 +967,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.RightLowerArm,
-                Lm(14),
-                Lm(16)
+                Lm(HumanTrackingPoint.RightElbow),
+                Lm(HumanTrackingPoint.RightWrist)
             );
         }
 
@@ -954,8 +983,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.LeftUpperLeg,
-                Lm(23),
-                Lm(25)
+                Lm(HumanTrackingPoint.LeftHip),
+                Lm(HumanTrackingPoint.LeftKnee)
             );
 
 
@@ -963,8 +992,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.LeftLowerLeg,
-                Lm(25),
-                Lm(27)
+                Lm(HumanTrackingPoint.LeftKnee),
+                Lm(HumanTrackingPoint.LeftAnkle)
             );
 
 
@@ -972,8 +1001,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.RightUpperLeg,
-                Lm(24),
-                Lm(26)
+                Lm(HumanTrackingPoint.RightHip),
+                Lm(HumanTrackingPoint.RightKnee)
             );
 
 
@@ -981,8 +1010,8 @@ public class BodyController : MonoBehaviour
 
             RotateBone(
                 HumanBodyBones.RightLowerLeg,
-                Lm(26),
-                Lm(28)
+                Lm(HumanTrackingPoint.RightKnee),
+                Lm(HumanTrackingPoint.RightAnkle)
             );
         }
 
@@ -1079,15 +1108,21 @@ public class BodyController : MonoBehaviour
     // LANDMARK HELPERS
     // ============================================================
 
-    private Vector3 Lm(int index)
+    private Vector3 Lm(HumanTrackingPoint trackingPoint)
     {
-        return currentLandmarks[index];
+        return currentLandmarks[(int)trackingPoint];
     }
 
 
-    private Vector3 Mid(int a, int b)
+    private Vector3 Mid(HumanTrackingPoint first, HumanTrackingPoint second)
     {
-        return (Lm(a) + Lm(b)) * 0.5f;
+        return (Lm(first) + Lm(second)) * 0.5f;
+    }
+
+
+    private Vector3 Mid(int first, int second)
+    {
+        return (currentLandmarks[first] + currentLandmarks[second]) * 0.5f;
     }
 
 
