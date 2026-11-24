@@ -39,8 +39,9 @@ public class PoseRouter : SingletonMono<PoseRouter>
     public static UnityEvent<Player> AddPlayerToBodyControllerEvent = new UnityEvent<Player>();
 
     [Header("Play Area Calibration")]
+    [SerializeField] private bool calibratePlayArea = true;
     [SerializeField] private float calibrationStandTime = 1f;
-    [SerializeField] private float calibrationPositionThreshold = 0.02f;
+    [SerializeField] private float calibrationPositionThreshold = 0.5f;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -64,6 +65,12 @@ public class PoseRouter : SingletonMono<PoseRouter>
 
         bodyController.calibrateAutomatically = false;
         yield return bodyController.HandleStartCalibrationCoroutine();
+
+        if (!calibratePlayArea)
+        {
+            Debug.Log("[PoseRouter] Play area calibration skipped.");
+            yield break;
+        }
 
         Debug.Log($"[PoseRouter] Move to the left edge of the play area and hold still for {calibrationStandTime:F1} seconds.");
         // CanvasManager.ShowCanvas.Invoke("MoveLeft");
