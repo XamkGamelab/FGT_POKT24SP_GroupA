@@ -54,8 +54,8 @@ public class ObstacleObject : MonoBehaviour
         //tells the game that the wall has passed
         GameManager.OnObstaclePassEvent.Invoke();
 
-        //Tells ObstacleManager that it can spawn a new obstacle
-        ObstacleManager.SpawnNewObstacleEvent.Invoke();
+        //Tells ObstacleManager that it can start the next turn
+        ObstacleManager.NextTurnEvent.Invoke();
         Destroy(gameObject);
     }
     private void OnCollisionEnter(Collision collision)

@@ -152,7 +152,7 @@ public class GameManager : MonoBehaviour
         // PlayGameMusic();
         curGameState.Value = GameState.GameOn;
         CanvasManager.ShowGameCanvas.Invoke();
-        ObstacleManager.SpawnNewObstacleEvent.Invoke();
+        ObstacleManager.NextTurnEvent.Invoke();
     }
     private void Update()
     {

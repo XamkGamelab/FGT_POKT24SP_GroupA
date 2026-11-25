@@ -67,7 +67,7 @@ public class WallGenerator : MonoBehaviour
             GameObject spawnedWall = Instantiate(
                 prefab,
                 position,
-                Quaternion.identity,
+                prefab.transform.rotation,
                 transform
             );
 

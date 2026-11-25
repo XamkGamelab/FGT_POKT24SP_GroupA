@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
 
         OnPlayerDeath += HandleDeath;
 
-        ObstacleManager.SpawnNewObstacleEvent.AddListener(ResetHit);
+        ObstacleManager.NextTurnEvent.AddListener(ResetHit);
 
         ogColor = rend.sharedMaterial.color;
 
@@ -165,6 +165,6 @@ public class Player : MonoBehaviour
 
     private void OnDestroy()
     {
-        ObstacleManager.SpawnNewObstacleEvent.RemoveListener(ResetHit);
+        ObstacleManager.NextTurnEvent.RemoveListener(ResetHit);
     }
 }

@@ -23,9 +23,6 @@ public class PoseRecordingController : MonoBehaviour
     [SerializeField]
     private TrackedWallCutter wallCutter;
 
-    [SerializeField]
-    private GeneratedWallStorage wallStorage;
-
     [Header("Recording Settings")]
     [Min(1)]
     [SerializeField] private int countdownDuration = 3;
@@ -44,7 +41,7 @@ public class PoseRecordingController : MonoBehaviour
         if (posePreview == null ||
             cutGenerator == null ||
             wallCutter == null ||
-            wallStorage == null)
+            GeneratedWallStorage.Instance == null)
         {
             Debug.LogError(
                 "PoseRecordingController is missing references."
@@ -187,10 +184,10 @@ public class PoseRecordingController : MonoBehaviour
 
         GUILayout.Label("State: " + state);
 
-        if (wallStorage != null)
+        if (GeneratedWallStorage.Instance != null)
         {
             GUILayout.Label(
-                "Recorded walls: " + wallStorage.Count
+                "Recorded walls: " + GeneratedWallStorage.Instance.Count
             );
         }
 

@@ -2351,7 +2351,7 @@ Transform:
   m_GameObject: {fileID: 498823872}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 65}
+  m_LocalPosition: {x: 4, y: 0, z: 65}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3462,7 +3462,7 @@ Transform:
   m_GameObject: {fileID: 746020868}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.1, y: 1.86, z: -12.764}
+  m_LocalPosition: {x: 0, y: 1.86, z: -12.764}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5831,8 +5831,8 @@ MonoBehaviour:
   - {fileID: 1473712439}
   - {fileID: 1122459122}
   lobbyCanvasName: 
-  startCanvasName: 
-  gameCanvasName: 
+  startCanvasName: Menu
+  gameCanvasName: InGameHUD
 --- !u!4 &1207832184
 Transform:
   m_ObjectHideFlags: 0

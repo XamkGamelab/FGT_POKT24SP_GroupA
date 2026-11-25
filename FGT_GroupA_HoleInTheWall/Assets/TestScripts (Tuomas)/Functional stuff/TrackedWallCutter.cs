@@ -12,9 +12,6 @@ public class TrackedWallCutter : MonoBehaviour
     [SerializeField]
     private HumanoidCutGenerator cutGenerator;
 
-    [SerializeField]
-    private GeneratedWallStorage wallStorage;
-
     private bool cutting;
 
     public bool IsCutting => cutting;
@@ -37,7 +34,7 @@ public class TrackedWallCutter : MonoBehaviour
         if (previewWall == null ||
             uncutWallPrefab == null ||
             cutGenerator == null ||
-            wallStorage == null)
+            GeneratedWallStorage.Instance == null)
         {
             Debug.LogError("Missing wall cutter references.");
             return false;
@@ -125,7 +122,7 @@ public class TrackedWallCutter : MonoBehaviour
             // =================================================
 
             GameObject storedWall =
-                wallStorage.StoreWall(workingWall);
+                GeneratedWallStorage.Instance.StoreWall(workingWall);
 
             if (storedWall == null)
             {
@@ -135,7 +132,7 @@ public class TrackedWallCutter : MonoBehaviour
 
             Debug.Log(
                 $"Pose recorded successfully! " +
-                $"Stored walls: {wallStorage.Count}"
+                $"Stored walls: {GeneratedWallStorage.Instance.Count}"
             );
 
             return true;

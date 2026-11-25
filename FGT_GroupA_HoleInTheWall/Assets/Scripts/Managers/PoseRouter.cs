@@ -10,16 +10,16 @@ public enum HumanTrackingPoint
     Head = 0,
     LeftShoulder = 11,
     RightShoulder = 12,
-    LeftElbow = 13,
-    RightElbow = 14,
-    LeftWrist = 15,
-    RightWrist = 16,
+    RightElbow = 13,
+    LeftElbow = 14,
+    RightWrist = 15,
+    LeftWrist = 16,
     LeftHip = 23,
     RightHip = 24,
-    LeftKnee = 25,
-    RightKnee = 26,
-    LeftAnkle = 27,
-    RightAnkle = 28
+    RightKnee = 25,
+    LeftKnee = 26,
+    RightAnkle = 27,
+    LeftAnkle = 28
 }
 
 public class PoseRouter : SingletonMono<PoseRouter>
