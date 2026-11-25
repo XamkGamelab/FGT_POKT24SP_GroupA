@@ -73,6 +73,7 @@ public class PoseRouter : SingletonMono<PoseRouter>
         yield return new WaitUntil(() => bodyController != null);
 
         bodyController.calibrateAutomatically = false;
+        bodyController.UpdateLandmarks(pendingLandmarks);
         yield return bodyController.HandleStartCalibrationCoroutine();
 
         if (!calibratePlayArea)
@@ -328,6 +329,8 @@ public class PoseRouter : SingletonMono<PoseRouter>
     // Update is called once per frame
     void LateUpdate()
     {
+        if (GameManager.Instance.CurGameState != GameManager.GameState.GameOn)
+            return;
         if(!poseReady)
         {
             return;

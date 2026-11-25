@@ -8,15 +8,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Test.unity
     guid: 94652187b0dcee74bb087d9524e387ce
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/LeUIScene.unity
     guid: 93884308ed22e414c98403c3abf68f54
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/FBX_Building_Scene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Arena_Building_Scene.unity
     guid: 8f9b55467024df04ba78a23eed859c8b
+  - enabled: 1
+    path: Assets/Scenes/LeMainMenu.unity
+    guid: 07edc64e27e918c409e4292891ac7e3b
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

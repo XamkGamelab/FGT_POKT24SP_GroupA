@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WallGenerator
   gapObject: {fileID: 2924773079243642279, guid: a92291f4131d0e3409d03c7d61e2c77a, type: 3}
   laneSpacing: 4
-  laneDirection: {x: 0, y: 0, z: 1}
+  laneDirection: {x: 1, y: 0, z: 0}
   generateOnStart: 1
 --- !u!114 &470853610848894925
 MonoBehaviour:
@@ -89,5 +89,5 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
