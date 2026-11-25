@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GeneratedWallStorage : MonoBehaviour
+public class GeneratedWallStorage : SingletonMono<GeneratedWallStorage>
 {
     [Header("Stored Wall Shapes")]
     [SerializeField]
