@@ -44,11 +44,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioSource gameMusic = null;
 
 
-    public static readonly UnityEvent ChekcForStartGameEvent = new UnityEvent();
+    public static readonly UnityEvent CheckForStartGameEvent = new UnityEvent();
     public static Action OnInitBodyController = delegate { };
 
     public static readonly UnityEvent EndGameEvent = new UnityEvent();
-    //public static readonly Action OnUnpauseGame = delegate { };
+    public static readonly UnityEventBool OnPauseGameEvent = new UnityEventBool();
 
     public static readonly UnityEvent OnObstaclePassEvent = new UnityEvent();
 
@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
         else
             Destroy(this);
 
-        ChekcForStartGameEvent.AddListener(() =>
+        CheckForStartGameEvent.AddListener(() =>
         {
             curGameState.Value = GameState.Paused;
 
@@ -110,6 +110,21 @@ public class GameManager : MonoBehaviour
             previousGameState = state;
         });
 
+        //Called When game is paused
+        OnPauseGameEvent.AddListener((isPause) =>
+        {
+            if (isPause)
+            {
+                // Handle pause logic
+                curGameState.Value = GameState.Paused;
+            }
+            else
+            {
+                // Handle resume logic
+                curGameState.Value = GameState.GameOn;
+            }
+        });
+
         OnObstaclePassEvent.AddListener(CheckForGameSpeed);
 
         SceneManager.LoadScene(1, LoadSceneMode.Additive);
@@ -119,7 +134,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        ChekcForStartGameEvent.Invoke();
         //PlayMenuMusic();
     }
 
@@ -130,6 +144,7 @@ public class GameManager : MonoBehaviour
 
         while (remainingTime > 0f)
         {
+            //Here you can update the UI to show the unpause countdown timer
             //UIScoreController.ChangeGameTimeUIEvent.Invoke($"Starting in {Mathf.CeilToInt(remainingTime)}");
             remainingTime -= Time.deltaTime;
             yield return null;
@@ -209,7 +224,6 @@ public class GameManager : MonoBehaviour
         if (playerPrefab == null)
             yield return null;
 
-        print("Spawniing");
         Player _playerInstance = Instantiate(playerPrefab, playerHolder).GetComponent<Player>();
 
         PoseRouter.AddPlayerToBodyControllerEvent.Invoke(_playerInstance);
