@@ -1405,7 +1405,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoseRouter
   mirrorMovement: 0
-  calibratePlayArea: 1
+  calibratePlayArea: 0
   calibrationStandTime: 1
   calibrationPositionThreshold: 0.25
   raisedArmThreshold: 0.03
