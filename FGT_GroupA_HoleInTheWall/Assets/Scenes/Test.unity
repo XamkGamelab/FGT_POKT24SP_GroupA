@@ -1193,10 +1193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5814a2941ac99a344beef5a9ccd9c35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BodyController
-  player: {fileID: 0}
-  trackingCamera: {fileID: 44169526}
-  smoothSpeed: 30
-  mirrorMovement: 1
+  boneRotationSpeed: 0.1
+  boneRotationDeadZone: 1
   headOffset: -0.25
   enableArms: 1
   enableLegs: 1
@@ -1208,10 +1206,12 @@ MonoBehaviour:
   verticalMovementScale: 10
   rootMovementTime: 0.1
   movementDeadzone: 0.01
+  leftPlayAreaX: -5
+  rightPlayAreaX: 5
   enableRootRotation: 1
-  rootRotationSmooth: 8
+  rootRotationSpeed: 180
   rotationMultiplier: 1
-  rotationDeadzone: 2
+  rootRotationDeadzone: 2
   calibrateAutomatically: 1
   calibrationDelay: 1
   drawGizmos: 1
@@ -1478,6 +1478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2104689014}
   - component: {fileID: 2104689013}
+  - component: {fileID: 2104689015}
   m_Layer: 0
   m_Name: ObstacleManager
   m_TagString: Untagged
@@ -1516,6 +1517,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2104689015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104689012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 448ee68024adb53408910f3d3da2e258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GeneratedWallStorage
+  generatedWalls: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

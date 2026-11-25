@@ -4,7 +4,6 @@ using UnityEngine;
 public class WallGenerator : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GeneratedWallStorage wallStorage;
     [SerializeField] private GameObject gapObject;
 
     [Header("Lane Settings")]
@@ -32,19 +31,19 @@ public class WallGenerator : MonoBehaviour
         if (!Application.isPlaying || hasGenerated)
             return;
 
-        if (wallStorage == null || gapObject == null)
+        if (GeneratedWallStorage.Instance == null || gapObject == null)
         {
             Debug.LogError("WallGenerator is missing references.");
             return;
         }
 
-        if (wallStorage.Count == 0)
+        if (GeneratedWallStorage.Instance.Count == 0)
         {
             Debug.LogWarning("No recorded wall shapes available.");
             return;
         }
 
-        GameObject poseWall = wallStorage.GetRandomWall();
+        GameObject poseWall = GeneratedWallStorage.Instance.GetRandomWall();
 
         if (poseWall == null)
             return;
