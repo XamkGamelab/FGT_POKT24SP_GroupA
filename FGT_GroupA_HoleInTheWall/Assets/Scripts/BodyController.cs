@@ -30,7 +30,7 @@ public class BodyController : MonoBehaviour
     [Header("References")]
 
     private Player player => GetComponent<Player>();
-    private int bodyID = 0;
+    //private int bodyID = 0;
 
     // ============================================================
     // BONE TRACKING

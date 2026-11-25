@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
         GameOn,
         Paused
     }
+
     [Header("Game")]
     private float gameSpeed = 0f;
     public float GameSpeed => gameSpeed;
@@ -25,6 +26,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float startGameSpeed = 5f;
     [SerializeField] private float minGameSpeed = 5f;
     [SerializeField] private float wallWaitTime = 1f;
+    [SerializeField] private float pauseToGameCountdown = 3f;
+
+    private bool pauseCountdownActive;
+    private Coroutine pauseCountdownCoroutine;
+    private GameState previousGameState = GameState.Menu;
     public float WallWaitTime => wallWaitTime;
 
     [Header("Player")]
@@ -42,13 +48,13 @@ public class GameManager : MonoBehaviour
     public static Action OnInitBodyController = delegate { };
 
     public static readonly UnityEvent EndGameEvent = new UnityEvent();
-    public static readonly Action OnUnpauseGame = delegate { };
+    //public static readonly Action OnUnpauseGame = delegate { };
 
     public static readonly UnityEvent OnObstaclePassEvent = new UnityEvent();
 
 
-    private GameState curGameState = GameState.Menu;
-    public GameState CurGameState => curGameState;
+    private ReactiveProperty<GameState> curGameState = new ReactiveProperty<GameState>(GameState.Menu);
+    public GameState CurGameState => curGameState.Value;
 
     private float gameTime = 0f;
 
@@ -64,7 +70,7 @@ public class GameManager : MonoBehaviour
 
         ChekcForStartGameEvent.AddListener(() =>
         {
-            curGameState = GameState.Paused;
+            curGameState.Value = GameState.Paused;
 
             SpawnPlayers().ToObservable()
                 .SelectMany(PoseRouter.Instance.HandleBodyCalibration())
@@ -76,18 +82,32 @@ public class GameManager : MonoBehaviour
                 }, onError =>
                 {
                     //Return to mainmenu if cannot start
-                   // CanvasManager.ShowCanvas.Invoke("MainMenu");
+                    EndGameEvent.Invoke();
+                    CanvasManager.ShowCanvas.Invoke("MainMenu");
                 });
         });
 
         EndGameEvent.AddListener(() =>
         {
-            curGameState = GameState.Menu;
+            curGameState.Value = GameState.Menu;
             DeletePlayers();
 
             //CanvasManager.ShowCanvas.Invoke("AddEntryToLeaderboard");
 
             //PlayMenuMusic();
+        });
+
+        curGameState.Subscribe(state =>
+        {
+            if (previousGameState == GameState.Paused && state == GameState.GameOn)
+            {
+                if (pauseCountdownCoroutine != null)
+                    StopCoroutine(pauseCountdownCoroutine);
+
+                pauseCountdownCoroutine = StartCoroutine(StartFromPauseTimer());
+            }
+
+            previousGameState = state;
         });
 
         OnObstaclePassEvent.AddListener(CheckForGameSpeed);
@@ -103,20 +123,35 @@ public class GameManager : MonoBehaviour
         //PlayMenuMusic();
     }
 
+    private IEnumerator StartFromPauseTimer()
+    {
+        pauseCountdownActive = true;
+        float remainingTime = Mathf.Max(0f, pauseToGameCountdown);
+
+        while (remainingTime > 0f)
+        {
+            //UIScoreController.ChangeGameTimeUIEvent.Invoke($"Starting in {Mathf.CeilToInt(remainingTime)}");
+            remainingTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        pauseCountdownActive = false;
+        pauseCountdownCoroutine = null;
+       // OnUnpauseGame.Invoke();
+    }
 
     private void StartGame()
     {
         gameSpeed = startGameSpeed;
-        Time.timeScale = 1;
 
         // PlayGameMusic();
-        curGameState = GameState.GameOn;
+        curGameState.Value = GameState.GameOn;
         CanvasManager.ShowGameCanvas.Invoke();
         ObstacleManager.SpawnNewObstacleEvent.Invoke();
     }
     private void Update()
     {
-        if (CurGameState != GameState.GameOn)
+        if (CurGameState != GameState.GameOn || pauseCountdownActive)
             return;
 
         AddToGameTime();

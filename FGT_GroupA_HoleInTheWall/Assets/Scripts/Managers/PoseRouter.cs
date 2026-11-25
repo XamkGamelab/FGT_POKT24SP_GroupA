@@ -42,6 +42,15 @@ public class PoseRouter : SingletonMono<PoseRouter>
     [SerializeField] private bool calibratePlayArea = true;
     [SerializeField] private float calibrationStandTime = 1f;
     [SerializeField] private float calibrationPositionThreshold = 0.5f;
+    [SerializeField] private float raisedArmThreshold = 0.03f;
+
+    private enum CalibrationArm
+    {
+        Left,
+        Right
+    }
+
+    private const int MinimumPoseLandmarkCount = 33;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -72,16 +81,25 @@ public class PoseRouter : SingletonMono<PoseRouter>
             yield break;
         }
 
-        Debug.Log($"[PoseRouter] Move to the left edge of the play area and hold still for {calibrationStandTime:F1} seconds.");
+       yield return CapturePlayArea();
+    }
+
+    private IEnumerator CapturePlayArea()
+    {
+        Debug.Log($"[PoseRouter] Move to the left edge of the play area, raise your left arm, and hold still for {calibrationStandTime:F1} seconds.");
         // CanvasManager.ShowCanvas.Invoke("MoveLeft");
-        yield return CaptureStableHipX();
+        yield return CaptureStableHipX(CalibrationArm.Left);
         float leftX = capturedHipX;
+
+        Debug.Log("[PoseRouter] Left edge captured. Lower your left arm.");
         Debug.Log($"[PoseRouter] Left position captured at tracking X={leftX:F3}.");
 
-        Debug.Log($"[PoseRouter] Move to the right edge of the play area and hold still for {calibrationStandTime:F1} seconds.");
+        Debug.Log($"[PoseRouter] Move to the right edge of the play area, raise your right arm, and hold still for {calibrationStandTime:F1} seconds.");
         // CanvasManager.ShowCanvas.Invoke("MoveRight");
-        yield return CaptureStableHipX();
+        yield return CaptureStableHipX(CalibrationArm.Right);
         float rightX = capturedHipX;
+
+        Debug.Log("[PoseRouter] Right edge captured. Lower your right arm.");
         Debug.Log($"[PoseRouter] Right position captured at tracking X={rightX:F3}.");
 
         if (bodyController.CalibratePlayArea(leftX, rightX))
@@ -94,7 +112,7 @@ public class PoseRouter : SingletonMono<PoseRouter>
         }
     }
 
-    private IEnumerator CaptureStableHipX()
+    private IEnumerator CaptureStableHipX(CalibrationArm arm)
     {
         float stablePosition = 0f;
         float positionSum = 0f;
@@ -105,6 +123,16 @@ public class PoseRouter : SingletonMono<PoseRouter>
 
         while (!hasStablePosition || stableTime < calibrationStandTime)
         {
+            if (!TryGetRaisedArm(arm))
+            {
+                stableTime = 0f;
+                positionSum = 0f;
+                sampleCount = 0;
+                hasStablePosition = false;
+                yield return null;
+                continue;
+            }
+
             float currentHipX;
             int currentPoseVersion;
             if (TryGetHipX(out currentHipX, out currentPoseVersion) && currentPoseVersion != lastPoseVersion)
@@ -131,6 +159,36 @@ public class PoseRouter : SingletonMono<PoseRouter>
         }
 
         capturedHipX = positionSum / sampleCount;
+    }
+
+    private bool TryGetRaisedArm(CalibrationArm arm)
+    {
+        lock (poseLock)
+        {
+            if (pendingLandmarks == null || pendingLandmarks.Count < MinimumPoseLandmarkCount)
+                return false;
+
+            int shoulderIndex;
+            int elbowIndex;
+            int wristIndex;
+
+            if (arm == CalibrationArm.Left)
+            {
+                shoulderIndex = (int)HumanTrackingPoint.LeftShoulder;
+                elbowIndex = (int)HumanTrackingPoint.LeftElbow;
+                wristIndex = (int)HumanTrackingPoint.LeftWrist;
+            }
+            else
+            {
+                shoulderIndex = (int)HumanTrackingPoint.RightShoulder;
+                elbowIndex = (int)HumanTrackingPoint.RightElbow;
+                wristIndex = (int)HumanTrackingPoint.RightWrist;
+            }
+
+            bool wristRaised = pendingLandmarks[wristIndex].y > pendingLandmarks[shoulderIndex].y + raisedArmThreshold;
+            bool elbowRaised = pendingLandmarks[elbowIndex].y > pendingLandmarks[shoulderIndex].y + raisedArmThreshold;
+            return wristRaised || elbowRaised;
+        }
     }
 
     private bool TryGetHipX(out float hipX, out int currentPoseVersion)
@@ -205,7 +263,7 @@ public class PoseRouter : SingletonMono<PoseRouter>
         var raw = result.poseLandmarks[0].landmarks;
 
 
-        if (raw == null || raw.Count < 33)
+        if (raw == null || raw.Count < MinimumPoseLandmarkCount)
             return;
 
 
