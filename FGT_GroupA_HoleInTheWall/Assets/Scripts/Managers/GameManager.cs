@@ -111,18 +111,9 @@ public class GameManager : MonoBehaviour
         });
 
         //Called When game is paused
-        OnPauseGameEvent.AddListener((isPause) =>
+        OnPauseGameEvent.AddListener((isPaused) =>
         {
-            if (isPause)
-            {
-                // Handle pause logic
-                curGameState.Value = GameState.Paused;
-            }
-            else
-            {
-                // Handle resume logic
-                curGameState.Value = GameState.GameOn;
-            }
+            curGameState.Value = isPaused ? GameState.Paused : GameState.GameOn;
         });
 
         OnObstaclePassEvent.AddListener(CheckForGameSpeed);
@@ -152,7 +143,6 @@ public class GameManager : MonoBehaviour
 
         pauseCountdownActive = false;
         pauseCountdownCoroutine = null;
-       // OnUnpauseGame.Invoke();
     }
 
     private void StartGame()
