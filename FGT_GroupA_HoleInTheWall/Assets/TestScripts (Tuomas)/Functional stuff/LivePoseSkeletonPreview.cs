@@ -309,14 +309,11 @@ public class LivePoseSkeletonPreview : MonoBehaviour
             return trackingPosition;
 
         Bounds bounds = meshFilter.sharedMesh.bounds;
-
-        // Tracking X = wall's local Z (horizontal width)
-        // Tracking Y = wall's local Y (vertical height)
-        // Local X = wall thickness / preview depth
+        Vector3 wallCenter = bounds.center;
 
         float wallHorizontal = Mathf.Lerp(
-            bounds.min.z,
-            bounds.max.z,
+            bounds.min.x,
+            bounds.max.x,
             trackingPosition.x
         );
 
@@ -326,21 +323,16 @@ public class LivePoseSkeletonPreview : MonoBehaviour
             trackingPosition.y
         );
 
-        Vector3 wallCenter = bounds.center;
-
         Vector3 mappedPosition = new Vector3(
-            wallCenter.x + previewDepthOffset,
+            wallHorizontal,
             wallVertical,
-            wallHorizontal
+            wallCenter.z + previewDepthOffset
         );
 
-        // Scale the complete skeleton around the wall center.
         mappedPosition = wallCenter +
             (mappedPosition - wallCenter) * overallScale;
 
-        mappedPosition += positionOffset;
-
-        return mappedPosition;
+        return mappedPosition + positionOffset;
     }
 
     // =========================================================
@@ -392,9 +384,8 @@ public class LivePoseSkeletonPreview : MonoBehaviour
         {
             Vector3 position = ConvertToWallPosition(pair.Value);
 
-            // Remove visual preview depth.
-            // X is the thickness axis of our wall.
-            position.x = 0f;
+            // Export the shape as X/Y and remove preview depth from Z.
+            position.z = 0f;
 
             mappedPoints.Add(pair.Key, position);
         }

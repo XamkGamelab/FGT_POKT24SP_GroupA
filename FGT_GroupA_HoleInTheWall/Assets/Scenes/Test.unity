@@ -333,7 +333,7 @@ Transform:
   m_GameObject: {fileID: 194329255}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 30}
+  m_LocalPosition: {x: 0, y: 2, z: 9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -487,7 +487,7 @@ Transform:
   m_GameObject: {fileID: 310149975}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -604,7 +604,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   gameSpeedDecrease: 0.1
-  startGameSpeed: 5
+  startGameSpeed: 10
   minGameSpeed: 1
   wallWaitTime: 1
   pauseToGameCountdown: 3
@@ -661,7 +661,7 @@ MonoBehaviour:
   overallScale: 1
   limbWidth: 0.06
   jointSize: 0.1
-  useSimulatedPose: 1
+  useSimulatedPose: 0
   positionOffset: {x: 0, y: 0, z: 0}
   previewDepthOffset: 1
   skeletonColor: {r: 0, g: 1, b: 0, a: 1}

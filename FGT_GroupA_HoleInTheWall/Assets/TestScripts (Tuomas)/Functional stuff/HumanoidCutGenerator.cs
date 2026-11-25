@@ -105,14 +105,14 @@ public class HumanoidCutGenerator : MonoBehaviour
 
         points = new Dictionary<HumanTrackingPoint, Vector2>();
 
-        // Convert wall-local YZ coordinates into physical
+        // Convert wall-local XY coordinates into physical
         // horizontal and vertical coordinates.
         foreach (var pair in mapped)
         {
             points.Add(
                 pair.Key,
                 new Vector2(
-                    pair.Value.z * wallScaleZ,
+                    pair.Value.x * wallScaleX,
                     pair.Value.y * wallScaleY
                 )
             );
@@ -437,6 +437,21 @@ public class HumanoidCutGenerator : MonoBehaviour
         return ab.x * ac.y - ab.y * ac.x;
     }
 
+    private void EnsureCounterClockwise(List<Vector2> outline)
+    {
+        float signedArea = 0f;
+
+        for (int i = 0; i < outline.Count; i++)
+        {
+            Vector2 a = outline[i];
+            Vector2 b = outline[(i + 1) % outline.Count];
+            signedArea += a.x * b.y - b.x * a.y;
+        }
+
+        if (signedArea < 0f)
+            outline.Reverse();
+    }
+
     // =========================================================
     // EXTRUDE 2D SHAPE THROUGH WALL
     // =========================================================
@@ -445,63 +460,65 @@ public class HumanoidCutGenerator : MonoBehaviour
         string cutterName,
         List<Vector2> outline)
     {
+        EnsureCounterClockwise(outline);
+
         int count = outline.Count;
 
         if (count < 3)
             return;
 
         float localPadding =
-            depthPadding / wallScaleX;
+            depthPadding / wallScaleZ;
 
-        float frontX =
-            wallBounds.max.x + localPadding;
+        float frontZ =
+            wallBounds.max.z + localPadding;
 
-        float backX =
-            wallBounds.min.x - localPadding;
+        float backZ =
+            wallBounds.min.z - localPadding;
 
         Vector3[] vertices = new Vector3[count * 2];
 
         List<int> triangles = new();
 
-        // Create front and back vertices.
+        // Create the XY profile twice, once on each side along Z.
         for (int i = 0; i < count; i++)
         {
+            float x = outline[i].x / wallScaleX;
             float y = outline[i].y / wallScaleY;
-            float z = outline[i].x / wallScaleZ;
 
             vertices[i] =
-                new Vector3(frontX, y, z);
+                new Vector3(x, y, frontZ);
 
             vertices[i + count] =
-                new Vector3(backX, y, z);
+                new Vector3(x, y, backZ);
         }
 
-        // Front and back faces.
+        // Front and back XY faces.
         for (int i = 1; i < count - 1; i++)
         {
-            // Front face.
+            // Front face points toward positive Z.
             triangles.Add(0);
-            triangles.Add(i + 1);
             triangles.Add(i);
+            triangles.Add(i + 1);
 
-            // Back face.
+            // Back face points toward negative Z.
             triangles.Add(count);
-            triangles.Add(count + i);
             triangles.Add(count + i + 1);
+            triangles.Add(count + i);
         }
 
-        // Connect the front and back faces.
+        // Connect the front and back XY faces along Z.
         for (int i = 0; i < count; i++)
         {
             int next = (i + 1) % count;
 
             triangles.Add(i);
-            triangles.Add(next);
             triangles.Add(i + count);
+            triangles.Add(next);
 
             triangles.Add(next);
-            triangles.Add(next + count);
             triangles.Add(i + count);
+            triangles.Add(next + count);
         }
 
         Mesh mesh = new Mesh();
